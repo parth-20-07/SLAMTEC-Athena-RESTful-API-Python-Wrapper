@@ -1,4 +1,3 @@
-print("Hello")
 from typing import List, Dict
 
 
@@ -70,6 +69,43 @@ class robotComms:
     def set_remote_url(self, url: str = '') -> None:
         self._REMOTE_URL = self.set_new_url(url)
         print(f"Communication Initiated in Remote Network at: {self._REMOTE_URL}")
+
+    _VERSION_NUM: str = "/v1"
+
+    # API Interfaces
+    _plugins: List[str] = ["core", "platform", "multi_floor_map", "delivery"]
+    _feature = {
+        "core": [
+            "system",
+            "slam",
+            "artifact",
+            "motion",
+            "firmware",
+            "statistics",
+            "sensors",
+            "application"],
+        "platform": [],
+        "multi_floor_map": [],
+        "delivery": []
+    }
+    _resources = {
+        "system": [
+            "capabilities",
+            "power/status",
+            "power/:shutdown",
+            "power/:hibernate",
+            "power/:wakeup",
+            "power/:restartmodule",
+            "robot/info"
+        ],
+        "slam": [
+            "localization/pose",
+            "localization/odopose",
+            "localization/quality"
+        ]
+    }
+
+
 def main():
     r1 = robotComms()
     r1.core_system()
