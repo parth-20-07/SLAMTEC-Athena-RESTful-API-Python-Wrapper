@@ -1,11 +1,14 @@
+import logging
+import os
+import datetime
 from typing import List, Dict
 
 # TODO: Project Plan
 # [x] Setup a Switching Interface for URL Connection
 # [ ] Setup an Endpoint Indexer so we dont make URL at everycall
-# [ ] Setup Logger:
-#       [ ] Console Logging
-#       [ ] File Logging
+# [x] Setup Logger:
+#       [x] Console Logging
+#       [x] File Logging
 # [ ] Setup Interface Functions for the ENDPOINTS
 # [ ] Restructure Code to meeting the library standards
 # [ ] Setup .whl file release to install via pip
@@ -14,50 +17,94 @@ from typing import List, Dict
 class robotComms:
 
     # Constructors
-    def __init__(self, run_remote_url: bool = False, remote_url: str = '') -> None:
+    def __init__(
+            self,
+            enable_console_logging: bool = True,
+            run_remote_url: bool = False,
+            remote_url: str = '') -> None:
+
+        self.setup_logger(enable_console_logging)
         if not run_remote_url:
-            print("Communication Instantiated via Local URL")
+            self.WARNING("Communication Instantiated via Local URL")
             self.CURRENT_URL = self._LOCAL_URL
             self._reindex_api()
-            print(f"Communication Initiated in Local Network at: {self._LOCAL_URL}")
+            self.WARNING(f"Communication Initiated in Local Network at: {self._LOCAL_URL}")
         else:
-            print("Communication Instantiated via Remote URL")
+            self.WARNING("Communication Instantiated via Remote URL")
             self._REMOTE_URL = self.set_new_url(remote_url)
             self.CURRENT_URL = self._REMOTE_URL
             self._reindex_api()
-            print(f"Communication Initiated in Remote Network at: {self._REMOTE_URL}")
+            self.WARNING(f"Communication Initiated in Remote Network at: {self._REMOTE_URL}")
 
     # Public Methods
     def set_new_url(self, new_url: str = '') -> str:
         # Get Input for Remote URL
         if (new_url == ''):
-            print("URL Not Provided.")
+            self.WARNING("URL Not Provided.")
             while (new_url == ''):
                 new_url: str = input("Please Enter New URL: ")
                 new_url = self.santize_url(new_url)
                 confirmation: str = input(f"Confirm New URL: {new_url}? (y/n)")
                 if (confirmation != 'y'):
-                    print("Try Again")
+                    self.WARNING("Try Again")
                     new_url = ''
         else:
             new_url = self.santize_url(new_url)
-        print(f"URL Confirmed: {new_url}")
+        self.WARNING(f"URL Confirmed: {new_url}")
         return new_url
 
     # Private Methods
 
+    def setup_logger(self, enable_console_logging: bool) -> None:
+        """
+        Reference: https://betterstack.com/community/questions/how-to-log-to-file-and-console-in-python/
+        """
+        # Setup Logger
+        self._LOGGER = logging.getLogger("api_logger")
+        self._LOGGER.setLevel(logging.DEBUG)
+
+        # Setup Formatting
+        formatter = logging.Formatter('[%(asctime)s] %(message)s')
+
+        # Setup Logger to File => Logs Everything
+        if not os.path.exists('logs'):
+            os.makedirs('logs')
+        fileHandler = logging.FileHandler(f"logs/{datetime.datetime.now()}-log.log")
+        fileHandler.setLevel(logging.DEBUG)
+        fileHandler.setFormatter(formatter)
+
+        # Setup Logger for Console => Logs based on user decision
+        consoleHandler = logging.StreamHandler()
+        consoleHandler.setFormatter(formatter)
+        if (enable_console_logging):
+            consoleHandler.setLevel(logging.DEBUG)
+        else:
+            consoleHandler.setLevel(logging.WARNING)
+
+        # Attach both loggers to logging object
+        self._LOGGER.addHandler(fileHandler)
+        self._LOGGER.addHandler(consoleHandler)
+
+        # Macros for Logging
+        self.DEBUG = self._LOGGER.debug
+        self.INFO = self._LOGGER.info
+        self.WARNING = self._LOGGER.warning
+        self.ERROR = self._LOGGER.error
+        self.CRITICAL = self._LOGGER.critical
+
     # TODO: URL Indexer
+
     def _reindex_api(self) -> None:
         for plugin in self._plugins:
             for feature in self._feature[plugin]:
                 for resource in self._resources[feature]:
-                    print(f"{self.CURRENT_URL}/api/{plugin}/{feature}/{resource}")
+                    self.INFO(f"{self.CURRENT_URL}/api/{plugin}/{feature}/{resource}")
     # TODO:
     # Clear the dictionary
     # Save the New URL with the Key of `feature/resource`
     # Read when needed from the dictionary using the key `feature/resource`
 
-# Static Methods
+    # Static Methods
 
     @staticmethod
     def santize_url(url: str) -> str:
@@ -75,7 +122,7 @@ class robotComms:
 
     def set_local_url(self, url: str = '') -> None:
         self._LOCAL_URL = self.set_new_url(url)
-        print(f"Communication Initiated in Local Network at: {self._LOCAL_URL}")
+        self.WARNING(f"Communication Initiated in Local Network at: {self._LOCAL_URL}")
 
     _REMOTE_URL: str = ""
 
@@ -84,7 +131,7 @@ class robotComms:
 
     def set_remote_url(self, url: str = '') -> None:
         self._REMOTE_URL = self.set_new_url(url)
-        print(f"Communication Initiated in Remote Network at: {self._REMOTE_URL}")
+        self.WARNING(f"Communication Initiated in Remote Network at: {self._REMOTE_URL}")
 
     _VERSION_NUM: str = "/v1"
 
@@ -123,7 +170,7 @@ class robotComms:
 
 
 def main():
-    r1 = robotComms()
+    r1 = robotComms(enable_console_logging=True)
     r1.core_system()
 
 
