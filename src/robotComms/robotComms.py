@@ -1,5 +1,15 @@
 from typing import List, Dict
 
+# TODO: Project Plan
+# [x] Setup a Switching Interface for URL Connection
+# [ ] Setup an Endpoint Indexer so we dont make URL at everycall
+# [ ] Setup Logger:
+#       [ ] Console Logging
+#       [ ] File Logging
+# [ ] Setup Interface Functions for the ENDPOINTS
+# [ ] Restructure Code to meeting the library standards
+# [ ] Setup .whl file release to install via pip
+
 
 class robotComms:
 
@@ -34,14 +44,20 @@ class robotComms:
         print(f"URL Confirmed: {new_url}")
         return new_url
 
-
     # Private Methods
+
+    # TODO: URL Indexer
     def _reindex_api(self) -> None:
         for plugin in self._plugins:
             for feature in self._feature[plugin]:
                 for resource in self._resources[feature]:
                     print(f"{self.CURRENT_URL}/api/{plugin}/{feature}/{resource}")
-    # Static Methods
+    # TODO:
+    # Clear the dictionary
+    # Save the New URL with the Key of `feature/resource`
+    # Read when needed from the dictionary using the key `feature/resource`
+
+# Static Methods
 
     @staticmethod
     def santize_url(url: str) -> str:
@@ -74,7 +90,7 @@ class robotComms:
 
     # API Interfaces
     _plugins: List[str] = ["core", "platform", "multi_floor_map", "delivery"]
-    _feature = {
+    _feature: Dict[str, List[str]] = {
         "core": [
             "system",
             "slam",
@@ -88,7 +104,7 @@ class robotComms:
         "multi_floor_map": [],
         "delivery": []
     }
-    _resources = {
+    _resources: Dict[str, List[str]] = {
         "system": [
             "capabilities",
             "power/status",
