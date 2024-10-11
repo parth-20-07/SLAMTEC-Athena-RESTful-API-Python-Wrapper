@@ -57,7 +57,8 @@ class robotComms:
 
     def setup_logger(self, enable_console_logging: bool) -> None:
         """
-        Reference: https://betterstack.com/community/questions/how-to-log-to-file-and-console-in-python/
+        Reference:
+            https://betterstack.com/community/questions/how-to-log-to-file-and-console-in-python/
         """
         # Setup Logger
         self._LOGGER = logging.getLogger("api_logger")
@@ -113,9 +114,11 @@ class robotComms:
                 else:
                     for resource in self._resources[feature]:
                         key: str = f"{plugin}/{feature}/{resource}"
-                        value: str = f"{
-                            self._CURRENT_URL}/api/{plugin}/{feature}/{self._VERSION_NUM}/{resource}"
-                        self._API_DICTIONARY[key] = value
+                        value: str = (
+                            f'{self._CURRENT_URL}/api/{plugin}'
+                            f'/{feature}/{self._VERSION_NUM}/{resource}'
+                        )
+                    self._API_DICTIONARY[key] = value
 
         for key in self._API_DICTIONARY:
             self.DEBUG(f"Key: {key} | Value: {self._API_DICTIONARY[key]}")
