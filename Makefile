@@ -17,6 +17,6 @@ clean:
 	find . -type f -name '*.pyc' -delete
 
 freeze:
-	./$(VENV)/bin/pip >> requirements.txt
+	./$(VENV)/bin/pip freeze >> requirements.txt
 
 .PHONY: all venv run clean freeze

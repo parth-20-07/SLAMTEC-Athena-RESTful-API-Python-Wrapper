@@ -5,7 +5,7 @@ from typing import List, Dict
 
 # TODO: Project Plan
 # [x] Setup a Switching Interface for URL Connection
-# [ ] Setup an Endpoint Indexer so we dont make URL at everycall
+# [x] Setup an Endpoint Indexer so we dont make URL at everycall
 # [x] Setup Logger:
 #       [x] Console Logging
 #       [x] File Logging
@@ -25,39 +25,40 @@ class robotComms:
 
         self.setup_logger(enable_console_logging)
         if not run_remote_url:
-            self.WARNING("Communication Instantiated via Local URL")
-            self.CURRENT_URL = self._LOCAL_URL
+            self.INFO("Communication Instantiated via Local URL")
+            self._CURRENT_URL = self._LOCAL_URL
             self._reindex_api()
-            self.WARNING(f"Communication Initiated in Local Network at: {self._LOCAL_URL}")
+            self.INFO(f"Communication Initiated in Local Network at: {self._LOCAL_URL}")
         else:
-            self.WARNING("Communication Instantiated via Remote URL")
+            self.INFO("Communication Instantiated via Remote URL")
             self._REMOTE_URL = self.set_new_url(remote_url)
-            self.CURRENT_URL = self._REMOTE_URL
+            self._CURRENT_URL = self._REMOTE_URL
             self._reindex_api()
-            self.WARNING(f"Communication Initiated in Remote Network at: {self._REMOTE_URL}")
+            self.INFO(f"Communication Initiated in Remote Network at: {self._REMOTE_URL}")
 
     # Public Methods
     def set_new_url(self, new_url: str = '') -> str:
         # Get Input for Remote URL
         if (new_url == ''):
-            self.WARNING("URL Not Provided.")
+            self.INFO("URL Not Provided.")
             while (new_url == ''):
                 new_url: str = input("Please Enter New URL: ")
                 new_url = self.santize_url(new_url)
                 confirmation: str = input(f"Confirm New URL: {new_url}? (y/n)")
                 if (confirmation != 'y'):
-                    self.WARNING("Try Again")
+                    self.INFO("Try Again")
                     new_url = ''
         else:
             new_url = self.santize_url(new_url)
-        self.WARNING(f"URL Confirmed: {new_url}")
+        self.INFO(f"URL Confirmed: {new_url}")
         return new_url
 
     # Private Methods
 
     def setup_logger(self, enable_console_logging: bool) -> None:
         """
-        Reference: https://betterstack.com/community/questions/how-to-log-to-file-and-console-in-python/
+        Reference:
+            https://betterstack.com/community/questions/how-to-log-to-file-and-console-in-python/
         """
         # Setup Logger
         self._LOGGER = logging.getLogger("api_logger")
@@ -79,7 +80,7 @@ class robotComms:
         if (enable_console_logging):
             consoleHandler.setLevel(logging.DEBUG)
         else:
-            consoleHandler.setLevel(logging.WARNING)
+            consoleHandler.setLevel(logging.INFO)
 
         # Attach both loggers to logging object
         self._LOGGER.addHandler(fileHandler)
@@ -95,17 +96,34 @@ class robotComms:
     # TODO: URL Indexer
 
     def _reindex_api(self) -> None:
+
+        self.DEBUG("Regenerating API")
+        # Clear the existing API Dictionary
+        self._API_DICTIONARY.clear()
+
+        # Generate API and Appdend to Dictionary
         for plugin in self._plugins:
             for feature in self._feature[plugin]:
-                for resource in self._resources[feature]:
-                    self.INFO(f"{self.CURRENT_URL}/api/{plugin}/{feature}/{resource}")
-    # TODO:
-    # Clear the dictionary
-    # Save the New URL with the Key of `feature/resource`
-    # Read when needed from the dictionary using the key `feature/resource`
+                if (feature == ""):
+                    feature = plugin
+                    for resource in self._resources[feature]:
+                        key: str = f"{plugin}/{resource}"
+                        value: str = f"{
+                            self._CURRENT_URL}/api/{plugin}/{self._VERSION_NUM}/{resource}"
+                        self._API_DICTIONARY[key] = value
+                else:
+                    for resource in self._resources[feature]:
+                        key: str = f"{plugin}/{feature}/{resource}"
+                        value: str = (
+                            f'{self._CURRENT_URL}/api/{plugin}'
+                            f'/{feature}/{self._VERSION_NUM}/{resource}'
+                        )
+                    self._API_DICTIONARY[key] = value
+
+        for key in self._API_DICTIONARY:
+            self.DEBUG(f"Key: {key} | Value: {self._API_DICTIONARY[key]}")
 
     # Static Methods
-
     @staticmethod
     def santize_url(url: str) -> str:
         # Check for http in Remote URL
@@ -122,7 +140,9 @@ class robotComms:
 
     def set_local_url(self, url: str = '') -> None:
         self._LOCAL_URL = self.set_new_url(url)
-        self.WARNING(f"Communication Initiated in Local Network at: {self._LOCAL_URL}")
+        self._CURRENT_URL = self._LOCAL_URL
+        self._reindex_api()
+        self.INFO(f"Communication Initiated in Local Network at: {self._LOCAL_URL}")
 
     _REMOTE_URL: str = ""
 
@@ -131,12 +151,15 @@ class robotComms:
 
     def set_remote_url(self, url: str = '') -> None:
         self._REMOTE_URL = self.set_new_url(url)
-        self.WARNING(f"Communication Initiated in Remote Network at: {self._REMOTE_URL}")
+        self._CURRENT_URL = self._REMOTE_URL
+        self._reindex_api()
+        self.INFO(f"Communication Initiated in Remote Network at: {self._REMOTE_URL}")
 
-    _VERSION_NUM: str = "/v1"
+    _VERSION_NUM: str = "v1"
 
     # API Interfaces
-    _plugins: List[str] = ["core", "platform", "multi_floor_map", "delivery"]
+    _API_DICTIONARY: Dict[str, str] = {}
+    _plugins: List[str] = ["core", "platform", "multi-floor", "delivery"]
     _feature: Dict[str, List[str]] = {
         "core": [
             "system",
@@ -147,9 +170,12 @@ class robotComms:
             "statistics",
             "sensors",
             "application"],
-        "platform": [],
-        "multi_floor_map": [],
-        "delivery": []
+        "platform": [""],
+        "multi-floor": [
+            "map",
+            "localization",
+        ],
+        "delivery": [""],
     }
     _resources: Dict[str, List[str]] = {
         "system": [
@@ -159,20 +185,128 @@ class robotComms:
             "power/:hibernate",
             "power/:wakeup",
             "power/:restartmodule",
-            "robot/info"
+            "robot/info",
+            "robot/health",
+            "laserscan",
+            "parameter",
+            "network/status",
+            "network/route",
+            "network/apn",
+            "cube/config",
+            "light/control",
+            "rawadcimu",
+            "rawimu"
         ],
         "slam": [
             "localization/pose",
             "localization/odopose",
-            "localization/quality"
+            "localization/quality",
+            "localization/:enable",
+            "localization/status/:reset",
+            "mapping/:enable",
+            "loopclosure/:enable",
+            "homepose",
+            "homedocks",
+            "homedocks/:register",
+            "imu",
+            "knownarea",
+            "maps",
+            "maps/explore",
+            "maps/stcm",
+            "maps/origin",
+        ],
+        "artifact": [
+            "lines",
+            "rectangle-areas",
+            "pois",
+            "pois/:adjust",
+            "laser-landmarks",
+            "laser-landmarks/:update",
+            "laser-landmarks/:remove"
+        ],
+        "motion": [
+            "actions",
+            "action-factories",
+            "actions/:current",
+            "path",
+            "milestones",
+            "speed",
+            "time",
+            ":search_path",
+            "strategies",
+            "strategies/:current",
+        ],
+        "firmware": [
+            "newversion",
+            "autoupdate/:enable",
+            "autoupdate/:start",
+            "update/:start",
+            "progress",
+        ],
+        "statistics": [
+            "odometry",
+            "runtime",
+        ],
+        "sensors": [
+            "depth/:enable",
+            "masks",
+        ],
+        "application": [
+            "apps",
+        ],
+        "platform": [
+            "timestamp",
+            "events",
+        ],
+        "map": [
+            "floors",
+            "floors/:current",
+            "pois",
+            "pois/:search_nearby",
+            "pois/:dispatch",
+            "homedocks",
+            "homedocks/:current",
+            "homedocks/:search_nearby",
+            "stcm",
+            "stcm/:save",
+            "stcm/:reload",
+            "stcm/:sync",
+            "search_path_points",
+            "elevators",
+        ],
+        "localization": [
+            "pose"
+        ],
+        "delivery": [
+            "admin/password",
+            "admin/mode",
+            "admin/language",
+            "admin/working_time",
+            "admin/move_options",
+            "admin/line_speed",
+            "configurations",
+            "settings",
+            "settings/timeout",
+            "voice_resources",
+            "cargos",
+            "cargos/assigned",
+            "tasks",
+            "tasks/:batch",
+            "tasks/orders",
+            "tasks/:task_execution",
+            "tasks/:task_finish",
+            "tasks/:start_pickup",
+            "tasks/:end_pickup",
+            "tasks/:end_operation",
+            "stage",
         ]
     }
 
 
 def main():
-    r1 = robotComms(enable_console_logging=True)
-    r1.core_system()
+    r1 = robotComms(enable_console_logging=False)
 
 
 if __name__ == "__main__":
     main()
+
