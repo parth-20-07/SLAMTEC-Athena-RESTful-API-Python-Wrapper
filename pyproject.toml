@@ -20,12 +20,3 @@ quote-style = "single"
 [tool.black] 
 line-length = 100 
 target-version = ['py39']
-
-# pyproject.toml
-#[tool.pytest.ini_options]
-#minversion = "6.0"
-#addopts = "-ra -q"
-#testpaths = [
-#    "tests",
-#    "integration",
-#]
