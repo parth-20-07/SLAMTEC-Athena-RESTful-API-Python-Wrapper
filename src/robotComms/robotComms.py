@@ -1,6 +1,4 @@
-import logging
-import os
-import datetime
+from logger import systemLogger
 from typing import List, Dict
 
 # TODO: Project Plan
@@ -15,125 +13,97 @@ from typing import List, Dict
 
 
 class robotComms:
-
     # Constructors
     def __init__(
-            self,
-            enable_console_logging: bool = True,
-            run_remote_url: bool = False,
-            remote_url: str = '') -> None:
-
-        self.setup_logger(enable_console_logging)
+        self,
+        console_logging: bool = True,
+        run_remote_url: bool = False,
+        remote_url: str = '',
+    ) -> None:
+        self._LOGGER: systemLogger = systemLogger(
+            logger_name='api_logger',
+            log_file_path='logs',
+            enable_console_logging=console_logging,
+        )
         if not run_remote_url:
-            self.INFO("Communication Instantiated via Local URL")
+            self._LOGGER.INFO('Communication Instantiated via Local URL')
             self._CURRENT_URL = self._LOCAL_URL
             self._reindex_api()
-            self.INFO(f"Communication Initiated in Local Network at: {self._LOCAL_URL}")
+            self._LOGGER.INFO(
+                f'Communication Initiated in Local Network at: {self._LOCAL_URL}'
+            )
         else:
-            self.INFO("Communication Instantiated via Remote URL")
+            self._LOGGER.INFO('Communication Instantiated via Remote URL')
             self._REMOTE_URL = self.set_new_url(remote_url)
             self._CURRENT_URL = self._REMOTE_URL
             self._reindex_api()
-            self.INFO(f"Communication Initiated in Remote Network at: {self._REMOTE_URL}")
+            self._LOGGER.INFO(
+                f'Communication Initiated in Remote Network at: {self._REMOTE_URL}'
+            )
 
     # Public Methods
     def set_new_url(self, new_url: str = '') -> str:
         # Get Input for Remote URL
-        if (new_url == ''):
-            self.INFO("URL Not Provided.")
-            while (new_url == ''):
-                new_url: str = input("Please Enter New URL: ")
-                new_url = self.santize_url(new_url)
-                confirmation: str = input(f"Confirm New URL: {new_url}? (y/n)")
-                if (confirmation != 'y'):
-                    self.INFO("Try Again")
-                    new_url = ''
+        if new_url == '':
+            self._LOGGER.INFO('URL Not Provided.')
+            while new_url == '':
+                custom_url: str = input('Please Enter New URL: ')
+                custom_url = self.santize_url(new_url)
+                confirmation: str = input(f'Confirm New URL: {custom_url}? (y/n)')
+                if confirmation != 'y':
+                    self._LOGGER.INFO('Try Again')
+                    custom_url = ''
+                else:
+                    new_url = custom_url
         else:
             new_url = self.santize_url(new_url)
-        self.INFO(f"URL Confirmed: {new_url}")
+        self._LOGGER.INFO(f'URL Confirmed: {new_url}')
         return new_url
 
     # Private Methods
 
-    def setup_logger(self, enable_console_logging: bool) -> None:
-        """
-        Reference:
-            https://betterstack.com/community/questions/how-to-log-to-file-and-console-in-python/
-        """
-        # Setup Logger
-        self._LOGGER = logging.getLogger("api_logger")
-        self._LOGGER.setLevel(logging.DEBUG)
-
-        # Setup Formatting
-        formatter = logging.Formatter('[%(asctime)s] %(message)s')
-
-        # Setup Logger to File => Logs Everything
-        if not os.path.exists('logs'):
-            os.makedirs('logs')
-        fileHandler = logging.FileHandler(f"logs/{datetime.datetime.now()}-log.log")
-        fileHandler.setLevel(logging.DEBUG)
-        fileHandler.setFormatter(formatter)
-
-        # Setup Logger for Console => Logs based on user decision
-        consoleHandler = logging.StreamHandler()
-        consoleHandler.setFormatter(formatter)
-        if (enable_console_logging):
-            consoleHandler.setLevel(logging.DEBUG)
-        else:
-            consoleHandler.setLevel(logging.INFO)
-
-        # Attach both loggers to logging object
-        self._LOGGER.addHandler(fileHandler)
-        self._LOGGER.addHandler(consoleHandler)
-
-        # Macros for Logging
-        self.DEBUG = self._LOGGER.debug
-        self.INFO = self._LOGGER.info
-        self.WARNING = self._LOGGER.warning
-        self.ERROR = self._LOGGER.error
-        self.CRITICAL = self._LOGGER.critical
-
     # TODO: URL Indexer
 
     def _reindex_api(self) -> None:
-
-        self.DEBUG("Regenerating API")
+        self._LOGGER.DEBUG('Regenerating API')
         # Clear the existing API Dictionary
         self._API_DICTIONARY.clear()
 
         # Generate API and Appdend to Dictionary
+        key: str = ''
+        value: str = ''
         for plugin in self._plugins:
             for feature in self._feature[plugin]:
-                if (feature == ""):
+                if feature == '':
                     feature = plugin
                     for resource in self._resources[feature]:
-                        key: str = f"{plugin}/{resource}"
-                        value: str = f"{
-                            self._CURRENT_URL}/api/{plugin}/{self._VERSION_NUM}/{resource}"
+                        key = f'{plugin}/{resource}'
+                        value = f'{
+                            self._CURRENT_URL}/api/{plugin}/{self._VERSION_NUM}/{resource}'
                         self._API_DICTIONARY[key] = value
                 else:
                     for resource in self._resources[feature]:
-                        key: str = f"{plugin}/{feature}/{resource}"
-                        value: str = (
+                        key = f'{plugin}/{feature}/{resource}'
+                        value = (
                             f'{self._CURRENT_URL}/api/{plugin}'
                             f'/{feature}/{self._VERSION_NUM}/{resource}'
                         )
-                    self._API_DICTIONARY[key] = value
+                        self._API_DICTIONARY[key] = value
 
         for key in self._API_DICTIONARY:
-            self.DEBUG(f"Key: {key} | Value: {self._API_DICTIONARY[key]}")
+            self._LOGGER.DEBUG(f'Key: {key} | Value: {self._API_DICTIONARY[key]}')
 
     # Static Methods
     @staticmethod
     def santize_url(url: str) -> str:
         # Check for http in Remote URL
         http_check: str = url[0:7]
-        if (http_check != 'http://'):
-            url = "http://" + url
+        if http_check != 'http://':
+            url = 'http://' + url
         return url
 
     # Class Variables
-    _LOCAL_URL: str = "http://192.168.11.1:1448"
+    _LOCAL_URL: str = 'http://192.168.11.1:1448'
 
     def get_local_url(self) -> str:
         return self._LOCAL_URL
@@ -142,9 +112,11 @@ class robotComms:
         self._LOCAL_URL = self.set_new_url(url)
         self._CURRENT_URL = self._LOCAL_URL
         self._reindex_api()
-        self.INFO(f"Communication Initiated in Local Network at: {self._LOCAL_URL}")
+        self._LOGGER.INFO(
+            f'Communication Initiated in Local Network at: {self._LOCAL_URL}'
+        )
 
-    _REMOTE_URL: str = ""
+    _REMOTE_URL: str = ''
 
     def get_remote_url(self) -> str:
         return self._REMOTE_URL
@@ -153,160 +125,161 @@ class robotComms:
         self._REMOTE_URL = self.set_new_url(url)
         self._CURRENT_URL = self._REMOTE_URL
         self._reindex_api()
-        self.INFO(f"Communication Initiated in Remote Network at: {self._REMOTE_URL}")
+        self._LOGGER.INFO(
+            f'Communication Initiated in Remote Network at: {self._REMOTE_URL}'
+        )
 
-    _VERSION_NUM: str = "v1"
+    _VERSION_NUM: str = 'v1'
 
     # API Interfaces
     _API_DICTIONARY: Dict[str, str] = {}
-    _plugins: List[str] = ["core", "platform", "multi-floor", "delivery"]
+    _plugins: List[str] = ['core', 'platform', 'multi-floor', 'delivery']
     _feature: Dict[str, List[str]] = {
-        "core": [
-            "system",
-            "slam",
-            "artifact",
-            "motion",
-            "firmware",
-            "statistics",
-            "sensors",
-            "application"],
-        "platform": [""],
-        "multi-floor": [
-            "map",
-            "localization",
+        'core': [
+            'system',
+            'slam',
+            'artifact',
+            'motion',
+            'firmware',
+            'statistics',
+            'sensors',
+            'application',
         ],
-        "delivery": [""],
+        'platform': [''],
+        'multi-floor': [
+            'map',
+            'localization',
+        ],
+        'delivery': [''],
     }
     _resources: Dict[str, List[str]] = {
-        "system": [
-            "capabilities",
-            "power/status",
-            "power/:shutdown",
-            "power/:hibernate",
-            "power/:wakeup",
-            "power/:restartmodule",
-            "robot/info",
-            "robot/health",
-            "laserscan",
-            "parameter",
-            "network/status",
-            "network/route",
-            "network/apn",
-            "cube/config",
-            "light/control",
-            "rawadcimu",
-            "rawimu"
+        'system': [
+            'capabilities',
+            'power/status',
+            'power/:shutdown',
+            'power/:hibernate',
+            'power/:wakeup',
+            'power/:restartmodule',
+            'robot/info',
+            'robot/health',
+            'laserscan',
+            'parameter',
+            'network/status',
+            'network/route',
+            'network/apn',
+            'cube/config',
+            'light/control',
+            'rawadcimu',
+            'rawimu',
         ],
-        "slam": [
-            "localization/pose",
-            "localization/odopose",
-            "localization/quality",
-            "localization/:enable",
-            "localization/status/:reset",
-            "mapping/:enable",
-            "loopclosure/:enable",
-            "homepose",
-            "homedocks",
-            "homedocks/:register",
-            "imu",
-            "knownarea",
-            "maps",
-            "maps/explore",
-            "maps/stcm",
-            "maps/origin",
+        'slam': [
+            'localization/pose',
+            'localization/odopose',
+            'localization/quality',
+            'localization/:enable',
+            'localization/status/:reset',
+            'mapping/:enable',
+            'loopclosure/:enable',
+            'homepose',
+            'homedocks',
+            'homedocks/:register',
+            'imu',
+            'knownarea',
+            'maps',
+            'maps/explore',
+            'maps/stcm',
+            'maps/origin',
         ],
-        "artifact": [
-            "lines",
-            "rectangle-areas",
-            "pois",
-            "pois/:adjust",
-            "laser-landmarks",
-            "laser-landmarks/:update",
-            "laser-landmarks/:remove"
+        'artifact': [
+            'lines',
+            'rectangle-areas',
+            'pois',
+            'pois/:adjust',
+            'laser-landmarks',
+            'laser-landmarks/:update',
+            'laser-landmarks/:remove',
         ],
-        "motion": [
-            "actions",
-            "action-factories",
-            "actions/:current",
-            "path",
-            "milestones",
-            "speed",
-            "time",
-            ":search_path",
-            "strategies",
-            "strategies/:current",
+        'motion': [
+            'actions',
+            'action-factories',
+            'actions/:current',
+            'path',
+            'milestones',
+            'speed',
+            'time',
+            ':search_path',
+            'strategies',
+            'strategies/:current',
         ],
-        "firmware": [
-            "newversion",
-            "autoupdate/:enable",
-            "autoupdate/:start",
-            "update/:start",
-            "progress",
+        'firmware': [
+            'newversion',
+            'autoupdate/:enable',
+            'autoupdate/:start',
+            'update/:start',
+            'progress',
         ],
-        "statistics": [
-            "odometry",
-            "runtime",
+        'statistics': [
+            'odometry',
+            'runtime',
         ],
-        "sensors": [
-            "depth/:enable",
-            "masks",
+        'sensors': [
+            'depth/:enable',
+            'masks',
         ],
-        "application": [
-            "apps",
+        'application': [
+            'apps',
         ],
-        "platform": [
-            "timestamp",
-            "events",
+        'platform': [
+            'timestamp',
+            'events',
         ],
-        "map": [
-            "floors",
-            "floors/:current",
-            "pois",
-            "pois/:search_nearby",
-            "pois/:dispatch",
-            "homedocks",
-            "homedocks/:current",
-            "homedocks/:search_nearby",
-            "stcm",
-            "stcm/:save",
-            "stcm/:reload",
-            "stcm/:sync",
-            "search_path_points",
-            "elevators",
+        'map': [
+            'floors',
+            'floors/:current',
+            'pois',
+            'pois/:search_nearby',
+            'pois/:dispatch',
+            'homedocks',
+            'homedocks/:current',
+            'homedocks/:search_nearby',
+            'stcm',
+            'stcm/:save',
+            'stcm/:reload',
+            'stcm/:sync',
+            'search_path_points',
+            'elevators',
         ],
-        "localization": [
-            "pose"
+        'localization': ['pose'],
+        'delivery': [
+            'admin/password',
+            'admin/mode',
+            'admin/language',
+            'admin/working_time',
+            'admin/move_options',
+            'admin/line_speed',
+            'configurations',
+            'settings',
+            'settings/timeout',
+            'voice_resources',
+            'cargos',
+            'cargos/assigned',
+            'tasks',
+            'tasks/:batch',
+            'tasks/orders',
+            'tasks/:task_execution',
+            'tasks/:task_finish',
+            'tasks/:start_pickup',
+            'tasks/:end_pickup',
+            'tasks/:end_operation',
+            'stage',
         ],
-        "delivery": [
-            "admin/password",
-            "admin/mode",
-            "admin/language",
-            "admin/working_time",
-            "admin/move_options",
-            "admin/line_speed",
-            "configurations",
-            "settings",
-            "settings/timeout",
-            "voice_resources",
-            "cargos",
-            "cargos/assigned",
-            "tasks",
-            "tasks/:batch",
-            "tasks/orders",
-            "tasks/:task_execution",
-            "tasks/:task_finish",
-            "tasks/:start_pickup",
-            "tasks/:end_pickup",
-            "tasks/:end_operation",
-            "stage",
-        ]
     }
 
 
 def main():
-    r1 = robotComms(enable_console_logging=False)
+    r1 = robotComms(console_logging=True)
+    print(r1)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
-
