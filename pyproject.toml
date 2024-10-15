@@ -9,7 +9,10 @@ build-backend = "setuptools.build_meta"
 name = "robotComms"
 version = "0.1"
 description = "Python Adapter Library with an abstraction layer to communicate with SLAMTEC Athena Robot over RESTful API"
-authors = [{name = "Parth Patel", email = "parth.pmech@gmail.com"}]
+authors = [
+    {name = "Parth Patel"}, 
+    {email = "parth.pmech@gmail.com"}
+]
 readme = "README.md"
 license = { file="LICENSE" }
 requires-python = ">=3.8"
@@ -47,21 +50,20 @@ src = ["src"]  # for ruff isort
 extend-exclude = [
   "pyproject.toml",
 ]
-
-[tool.ruff.lint]
-select = ["E4", "E7", "E9", "F", "B"]
+select = ["E4", "E7", "E9", "F", "B", "Q"]
 ignore = ["E501"]
 unfixable = ["B"]
 
-[tool.ruff.lint.per-file-ignores]
+[tool.ruff.per-file-ignores]
 "__init__.py" = ["E402"]
 "**/{tests,docs,tools}/*" = ["E402"]
 
-[tool.ruff.lint.pydocstyle]
+[tool.ruff.flake8-quotes]
+docstring-quotes = "double"
+
+[tool.ruff.pydocstyle]
 convention = "google"
 
-[tool.ruff.format]
-quote-style = "single"
 
 ## Formatter
 
