@@ -14,10 +14,9 @@ __name__ = "restAdapter"
 
 import requests
 import requests.packages
-from typing import Dict, List, Tuple
+import typing
 
-
-httpStatusCode: Dict[int, str] = {
+httpStatusCode: typing.Dict[int, str] = {
     200: "SUCCESS",
     204: "NO_CONTENT",
     400: "BAD_REQUEST",
@@ -31,19 +30,45 @@ class restAdapter:
         pass
 
     def get(
-        self, full_endpoint: str, ep_params: Dict[str, str]
-    ) -> Tuple[int, List[Dict[str, str]]]:
-        response = requests.get(url=full_endpoint, params=ep_params)
-        data: List[Dict[str, str]] = response.json()
-        return (response.status_code, data)
+        self,
+        full_endpoint: str,
+        payload: typing.Dict[str, str] = None,
+    ) -> typing.Tuple[int, typing.List[typing.Dict[str, str]]]:
+        response: requests.Response = requests.get(url=full_endpoint, params=payload)
+        data_out: typing.List[typing.Dict[str, str]] = response.json()
+        return (response.status_code, data_out)
 
     def post(
         self,
         full_endpoint: str,
-        ep_params: Dict[str, str],
-        data: Dict[str, str],
+        ep_params: typing.Dict[str, str] = None,
+        data: typing.Dict[str, str] = None,
     ) -> int:
-        response = requests.post(url=full_endpoint, params=ep_params, json=data)
-        data_out = response.json()
+        response: requests.Response = requests.post(url=full_endpoint, params=ep_params, json=data)
+        data_out: typing.List[typing.Dict[str, str]] = response.json()
+        print(data_out)
+        return response.status_code
+
+    def delete(
+        self,
+        full_endpoint: str,
+        ep_params: typing.Dict[str, str] = None,
+        data: typing.Dict[str, str] = None,
+    ) -> int:
+        response: requests.Response = requests.delete(
+            url=full_endpoint, params=ep_params, json=data
+        )
+        data_out: typing.List[typing.Dict[str, str]] = response.json()
+        print(data_out)
+        return response.status_code
+
+    def put(
+        self,
+        full_endpoint: str,
+        ep_params: typing.Dict[str, str] = None,
+        data: typing.Dict[str, str] = None,
+    ) -> int:
+        response: requests.Response = requests.post(url=full_endpoint, params=ep_params, json=data)
+        data_out: typing.List[typing.Dict[str, str]] = response.json()
         print(data_out)
         return response.status_code
