@@ -31,7 +31,7 @@ class restAdapter:
         pass
 
     def get(
-        self, full_endpoint: str, ep_params: Dict[str, str] = None
+        self, full_endpoint: str, ep_params: Dict[str, str]
     ) -> Tuple[int, List[Dict[str, str]]]:
         response = requests.get(url=full_endpoint, params=ep_params)
         data: List[Dict[str, str]] = response.json()
@@ -40,10 +40,10 @@ class restAdapter:
     def post(
         self,
         full_endpoint: str,
-        ep_params: Dict[str, str] = None,
-        data: Dict[str, str] = None,
+        ep_params: Dict[str, str],
+        data: Dict[str, str],
     ) -> int:
-        response = requests.post(url=full_end_point, params=ep_params, json=data)
+        response = requests.post(url=full_endpoint, params=ep_params, json=data)
         data_out = response.json()
-
-        return (response.status_code, data_out)
+        print(data_out)
+        return response.status_code
