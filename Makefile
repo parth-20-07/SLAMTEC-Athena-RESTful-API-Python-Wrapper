@@ -3,9 +3,13 @@ VENV := .venv
 
 all: venv
 
-$(VENV)/bin/activate: requirements.txt
+setup: pyproject.toml
 	python3 -m venv $(VENV)
-	./$(VENV)/bin/pip install -r requirements.txt
+	./$(VENV)/bin/pip install -e .
+
+dev: pyproject.toml
+	python3 -m venv $(VENV)
+	./$(VENV)/bin/pip install -e .[dev]
 
 venv: $(VENV)/bin/activate
 
@@ -16,7 +20,4 @@ clean:
 	rm -rf $(VENV)
 	find . -type f -name '*.pyc' -delete
 
-freeze:
-	./$(VENV)/bin/pip freeze >> requirements.txt
-
-.PHONY: all venv run clean freeze
+.PHONY: all venv run clean setup dev

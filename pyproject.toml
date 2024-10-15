@@ -1,22 +1,72 @@
-[tool.ruff.lint]
-# 1. Enable flake8-bugbear (`B`) rules, in addition to the defaults.
-select = ["E4", "E7", "E9", "F", "B"]
+[build-system]
+requires = [
+    "setuptools>=42",
+    "wheel"
+]
+build-backend = "setuptools.build_meta"
 
-# 2. Avoid enforcing line-length violations (`E501`)
+[project]
+name = "robotComms"
+version = "0.1"
+description = "Python Adapter Library with an abstraction layer to communicate with SLAMTEC Athena Robot over RESTful API"
+authors = [{name = "Parth Patel"}, {email = "parth.pmech@gmail.com"}]
+readme = "README.md"
+license = { file="LICENSE" }
+requires-python = ">=3.8"
+dependencies = [
+    "annotated-types>=0.7.0",
+    "pydantic>=2.9.2",
+    "pydantic_core>=2.23.4",
+    "pytest>=8.3.3",
+    "python-dateutil>=2.9.0.post0",
+    "requests >= 2.32.3",
+    "typing_extensions>=4.12.2",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/parth-20-07/SLAMTEC-Athena-RESTful-API-Python-Wrapper.git"
+
+[project.optional-dependencies]
+dev = [
+    "black",
+    "jedi",
+    "ruff"
+]
+
+#[tool.setuptools]
+#packages = ["src/robotComms/utils"]
+
+###############################################
+# Dev Tools Dependecies Setup
+###############################################
+
+## Linter
+
+[tool.ruff]
+target-version = "py38"
+src = ["src"]  # for ruff isort
+extend-exclude = [
+  "pyproject.toml",
+]
+select = ["E4", "E7", "E9", "F", "B", "Q"]
 ignore = ["E501"]
-
-# 3. Avoid trying to fix flake8-bugbear (`B`) violations.
 unfixable = ["B"]
 
-# 4. Ignore `E402` (import violations) in all `__init__.py` files, and in selected subdirectories.
-[tool.ruff.lint.per-file-ignores]
+[tool.ruff.per-file-ignores]
 "__init__.py" = ["E402"]
 "**/{tests,docs,tools}/*" = ["E402"]
 
-[tool.ruff.format]
-# 5. Use single quotes in `ruff format`.
-quote-style = "single"
+[tool.ruff.flake8-quotes]
+docstring-quotes = "double"
+
+[tool.ruff.pydocstyle]
+convention = "google"
+
+
+## Formatter
 
 [tool.black] 
 line-length = 100 
-target-version = ['py39']
+skip-magic-trailing-comma = false
+skip-string-normalization = false
+target-version = ['py39', 'py310', 'py311', 'py312']
