@@ -25,10 +25,6 @@ jobs:
           # exit-zero treats all errors as warnings.
           ruff check src/robotComms/* --exit-zero
 
-      - name: Check formatting with black
-        run: |
-          black src/robotComms/
-
           #      - name: Run unit tests
           #        run: |
           #          pytest

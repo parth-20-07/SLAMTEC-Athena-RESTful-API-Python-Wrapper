@@ -8,7 +8,7 @@ Performs two forms of logging:
 Reference: https://betterstack.com/community/questions/how-to-log-to-file-and-console-in-python/
 """
 
-__name__ = 'systemLogger'
+__name__ = "systemLogger"
 
 import logging
 import datetime
@@ -17,10 +17,11 @@ import os
 
 class systemLogger:
     def __init__(
-            self,
-            logger_name: str = 'logger',
-            log_file_path: str = 'logs',
-            enable_console_logging: bool = True) -> None:
+        self,
+        logger_name: str = "logger",
+        log_file_path: str = "logs",
+        enable_console_logging: bool = True,
+    ) -> None:
         """
         Setup Logging System.
 
@@ -41,7 +42,7 @@ class systemLogger:
         self._LOGGER.setLevel(logging.DEBUG)
 
         # Setup Formatting
-        formatter = logging.Formatter('[%(asctime)s] %(message)s')
+        formatter = logging.Formatter("[%(asctime)s] %(message)s")
 
         # Setup Logger to File => Logs Everything
         if not os.path.exists(log_file_path):
@@ -53,7 +54,7 @@ class systemLogger:
         # Setup Logger for Console => Logs based on user decision
         consoleHandler = logging.StreamHandler()
         consoleHandler.setFormatter(formatter)
-        if (enable_console_logging):
+        if enable_console_logging:
             consoleHandler.setLevel(logging.DEBUG)
         else:
             consoleHandler.setLevel(logging.ERROR)

@@ -1,6 +1,9 @@
-from logger import systemLogger
+# System Dependencies
 from typing import List, Dict
-from rest_adapter import restAdapter
+
+# Utils Dependencies
+from utils.logger import systemLogger
+from utils.rest_adapter import restAdapter
 
 # TODO: Project Plan
 # [x] Setup a Switching Interface for URL Connection
