@@ -18,6 +18,10 @@ run: venv
 
 clean:
 	rm -rf $(VENV)
+	rm -rf .ruff_cache
+	rm -rf logs
 	find . -type f -name '*.pyc' -delete
+	find . -name '__pycache__' -ls -exec rm -rv {} +
+	find . -name '*.egg-info' -ls -exec rm -rv {} +
 
 .PHONY: all venv run clean setup dev
