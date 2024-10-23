@@ -1,5 +1,7 @@
 # define the name of the virtual environment directory
 VENV := .venv
+VPN_IMAGE := crpi-orhk6a4lutw1gb13.cn-hangzhou.personal.cr.aliyuncs.com/bestoray/pgyvpn
+VPN_CONTAINER := pgy_vpn
 
 all: venv
 
@@ -24,4 +26,20 @@ clean:
 	find . -name '__pycache__' -ls -exec rm -rv {} +
 	find . -name '*.egg-info' -ls -exec rm -rv {} +
 
-.PHONY: all venv run clean setup dev
+docker_run:
+	docker run -d \
+		--name $(VPN_CONTAINER) \
+		--device=/dev/net/tun \
+		--net=host \
+		--cap-add=NET_ADMIN \
+		--cap-add=SYS_ADMIN \
+		--env PGY_USERNAME=$(PGY_UNM) \
+		--env PGY_PASSWORD=$(PGY_PWD) \
+		$(VPN_IMAGE)
+
+docker_clean:
+	docker stop $(VPN_CONTAINER)
+	docker rm $(VPN_CONTAINER)
+	docker rmi $(VPN_IMAGE)
+
+.PHONY: all venv run clean setup dev docker_run 
