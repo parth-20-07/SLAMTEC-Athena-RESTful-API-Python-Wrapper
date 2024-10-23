@@ -38,7 +38,7 @@ class systemLogger:
                             Default: True
         """
         # Setup Logger
-        self._LOGGER = logging.getLogger(logger_name)
+        self._LOGGER: logging.Logger = logging.getLogger(logger_name)
         self._LOGGER.setLevel(logging.DEBUG)
 
         # Setup Formatting
