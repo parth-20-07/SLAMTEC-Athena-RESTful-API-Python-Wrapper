@@ -33,9 +33,7 @@ class robotComms:
             self._LOGGER.INFO("Communication Instantiated via Local URL")
             self._CURRENT_URL = self._LOCAL_URL
             self._reindex_api()
-            self._LOGGER.INFO(
-                f"Communication Initiated in Local Network at: {self._LOCAL_URL}"
-            )
+            self._LOGGER.INFO(f"Communication Initiated in Local Network at: {self._LOCAL_URL}")
         else:
             self._LOGGER.INFO("Communication Instantiated via Remote URL")
             if remote_url == "":
@@ -51,9 +49,7 @@ class robotComms:
                 self._CURRENT_URL = self._REMOTE_URL
 
             self._reindex_api()
-            self._LOGGER.INFO(
-                f"Communication Initiated in Remote Network at: {self._REMOTE_URL}"
-            )
+            self._LOGGER.INFO(f"Communication Initiated in Remote Network at: {self._REMOTE_URL}")
 
         self._API_ADAPTER: restAdapter = restAdapter(logger_instance=self._LOGGER)
 
@@ -125,9 +121,7 @@ class robotComms:
         self._LOCAL_URL = self.set_new_url(url)
         self._CURRENT_URL = self._LOCAL_URL
         self._reindex_api()
-        self._LOGGER.INFO(
-            f"Communication Initiated in Local Network at: {self._LOCAL_URL}"
-        )
+        self._LOGGER.INFO(f"Communication Initiated in Local Network at: {self._LOCAL_URL}")
 
     _REMOTE_URL: str = ""
 
@@ -138,9 +132,7 @@ class robotComms:
         self._REMOTE_URL = self.set_new_url(url)
         self._CURRENT_URL = self._REMOTE_URL
         self._reindex_api()
-        self._LOGGER.INFO(
-            f"Communication Initiated in Remote Network at: {self._REMOTE_URL}"
-        )
+        self._LOGGER.INFO(f"Communication Initiated in Remote Network at: {self._REMOTE_URL}")
 
     _VERSION_NUM: str = "v1"
 
