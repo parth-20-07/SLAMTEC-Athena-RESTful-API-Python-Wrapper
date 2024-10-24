@@ -28,6 +28,12 @@ class restAdapter:
         logger_instance: typing.Optional[systemLogger] = None,
         timeout: float = 1.0,
     ) -> None:
+        """
+
+        Args:
+            logger_instance: Instance of systemLogger. If not provided, initiates with log name 'restApi_logger'
+            timeout: API Request Timeout. Default = 1s
+        """
         self._LOGGER: systemLogger = logger_instance or systemLogger(
             logger_name="restApi_logger",
             log_file_path="logs",
@@ -40,6 +46,16 @@ class restAdapter:
         full_endpoint: str,
         params: typing.Optional[typing.Dict[str, str]] = None,
     ) -> Result:
+        """
+        Generate GET Request
+
+        Args:
+            full_endpoint: Complete endpoint of format: http://{ip}:{port}/{endpoint}
+            params: Dictionary of Parameters to Fetch Data
+
+        Returns:
+            Result: Status Code with message
+        """
         return self.__do(http_method="GET", endpoint=full_endpoint, ep_params=params)
 
     def __do(
@@ -49,6 +65,23 @@ class restAdapter:
         ep_params: typing.Optional[typing.Dict[str, str]] = None,
         data: typing.Optional[typing.Dict[str, str]] = None,
     ) -> Result:
+        """
+
+        Perform HTTP Requests
+
+        Args:
+            http_method: Request Method GET/PUT/POST/DELETE
+            endpoint: API Endpoint
+            ep_params: Dictionary of Parameters to pass in request
+            data:
+
+        Raises:
+            Exception: Status Code Errors
+
+        Returns:
+            Result: Status Code with message
+
+        """
         try:
             self._LOGGER.INFO(f"{http_method} => {endpoint} | Payload: {ep_params}")
             response: requests.Response = requests.request(
