@@ -42,7 +42,7 @@ class systemLogger:
         self._LOGGER.setLevel(logging.DEBUG)
 
         # Setup Formatting
-        formatter = logging.Formatter("[%(asctime)s] %(message)s")
+        formatter = logging.Formatter("[%(asctime)s] %(levelname)s: %(message)s")
 
         # Setup Logger to File => Logs Everything
         if not os.path.exists(log_file_path):
