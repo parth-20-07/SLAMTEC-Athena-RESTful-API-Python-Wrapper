@@ -20,6 +20,7 @@ from utils.models import Result
 # Imported Packages
 import requests  # https://requests.readthedocs.io/en/latest/user/quickstart/#
 import typing
+import json
 
 
 class restAdapter:
@@ -31,8 +32,8 @@ class restAdapter:
         self,
         full_endpoint: str,
         params: typing.Optional[typing.Dict[str, str]] = None,
-    ) -> typing.Tuple[int, typing.List[typing.Dict[str, str]]]:
-        self._do(http_method="GET", endpoint=full_endpoint, ep_params=params)
+    ) -> typing.Union[int, typing.List[typing.Dict[typing.Any, typing.Any]]]:
+        return self._do(http_method="GET", endpoint=full_endpoint, ep_params=params)
 
     def _do(
         self,
@@ -40,7 +41,7 @@ class restAdapter:
         endpoint: str,
         ep_params: typing.Optional[typing.Dict[str, str]] = None,
         data: typing.Optional[typing.Dict[str, str]] = None,
-    ):
+    ) -> typing.Union[int, typing.List[typing.Dict[typing.Any, typing.Any]]]:
         try:
             self._LOGGER.INFO(f"{http_method} => {endpoint} | Payload: {ep_params}")
             response: requests.Response = requests.request(
@@ -58,8 +59,10 @@ class restAdapter:
         except (ValueError, requests.JSONDecodeError) as e:
             raise restApiExceptions("Bad JSON in Response") from e
 
-        if reponse.status_code == requests.Response.ok:
-            self._LOGGER.INFO(f"[OK] => {response.status_code} : {response.json()}")
-            return response.json
+        if response.status_code == requests.codes.ok:
+            self._LOGGER.INFO(
+                f"[OK] => {response.status_code} : {json.dumps(response.json(), indent =2)}"
+            )
+            return response.json()
 
         raise restApiExceptions(f"{response.status_code}: {response.reason}")

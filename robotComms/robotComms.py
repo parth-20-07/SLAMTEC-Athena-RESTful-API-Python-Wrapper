@@ -1,5 +1,6 @@
 # System Dependencies
-from typing import List, Dict, Union
+import typing
+import json
 
 # Utils Dependencies
 from utils.logger import systemLogger
@@ -74,15 +75,18 @@ class robotComms:
 
     def get_core_system_capabilities(self):
         endpoint: str = self._API_DICTIONARY["core/system/capabilities"]
-        return self._API_ADAPTER.get(full_endpoint=endpoint)
+        response: typing.Union[int, typing.List[typing.Dict[typing.Any, typing.Any]]] = (
+            self._API_ADAPTER.get(full_endpoint=endpoint)
+        )
+        return response
 
     # Private Methods
     def _reindex_api(self) -> None:
         self._LOGGER.DEBUG("Regenerating API")
-        # Clear the existing API Dictionary
+        # Clear the existing API typing.Dictionary
         self._API_DICTIONARY.clear()
 
-        # Generate API and Appdend to Dictionary
+        # Generate API and Appdend to typing.Dictionary
         key: str = ""
         value: str = ""
         for plugin in self._plugins:
@@ -137,9 +141,9 @@ class robotComms:
     _VERSION_NUM: str = "v1"
 
     # API Interfaces
-    _API_DICTIONARY: Dict[str, str] = {}
-    _plugins: List[str] = ["core", "platform", "multi-floor", "delivery"]
-    _feature: Dict[str, List[str]] = {
+    _API_DICTIONARY: typing.Dict[str, str] = {}
+    _plugins: typing.List[str] = ["core", "platform", "multi-floor", "delivery"]
+    _feature: typing.Dict[str, typing.List[str]] = {
         "core": [
             "system",
             "slam",
@@ -157,7 +161,7 @@ class robotComms:
         ],
         "delivery": [""],
     }
-    _resources: Dict[str, List[str]] = {
+    _resources: typing.Dict[str, typing.List[str]] = {
         "system": [
             "capabilities",
             "power/status",

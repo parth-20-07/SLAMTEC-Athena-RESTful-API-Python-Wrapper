@@ -1,38 +1,28 @@
-[build-system]
-requires = [
-    "setuptools>=42",
-    "wheel"
-]
-build-backend = "setuptools.build_meta"
-
-[project]
-name = "robotComms"
-version = "0.1"
+[tool.poetry]
+name = "robotcomms"
+version = "0.1.0"
 description = "Python Adapter Library with an abstraction layer to communicate with SLAMTEC Athena Robot over RESTful API"
-authors = [{name = "Parth Patel"}, {email = "parth.pmech@gmail.com"}]
+authors = ["Parth Patel <parth.pmech@gmail.com>"]
 readme = "README.md"
-license = { file="LICENSE" }
-requires-python = ">=3.8"
-dependencies = [
-    "annotated-types>=0.7.0",
-    "pytest>=8.3.3",
-    "python-dateutil>=2.9.0.post0",
-    "requests >= 2.32.3",
-    "typing_extensions>=4.12.2",
-]
+package-mode = false # TODO: Turn this to true when the development is complete
+
+[tool.poetry.dependencies]
+python = "^3.12"
+typing_extensions = "^4.12.2"
+pytest = "^8.3.3"
+dateutils = "^0.6.12"
+requests = "^2.32.3"
+black = "^24.10.0"
+ruff = "^0.7.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
 
 [project.urls]
 "Homepage" = "https://github.com/parth-20-07/SLAMTEC-Athena-RESTful-API-Python-Wrapper.git"
-
-[project.optional-dependencies]
-dev = [
-    "black",
-    "jedi",
-    "ruff"
-]
-
-#[tool.setuptools]
-#packages = ["src/robotComms/utils"]
 
 ###############################################
 # Dev Tools Dependecies Setup
@@ -68,3 +58,4 @@ line-length = 100
 skip-magic-trailing-comma = false
 skip-string-normalization = false
 target-version = ['py39', 'py310', 'py311', 'py312']
+

@@ -6,25 +6,18 @@ VPN_CONTAINER := pgy_vpn
 all: venv
 
 setup: pyproject.toml
-	python3 -m venv $(VENV)
-	./$(VENV)/bin/pip install -e .
+	poetry shell
+	poetry install
 
-dev: pyproject.toml
-	python3 -m venv $(VENV)
-	./$(VENV)/bin/pip install -e .[dev]
-
-venv: $(VENV)/bin/activate
-
-run: venv
-	./$(VENV)/bin/python3 src/robotComms/robotComms.py
+run: setup
+	./$(VENV)/bin/python3 robotComms/robotComms.py
 
 clean:
 	rm -rf $(VENV)
-	rm -rf .ruff_cache
+	rm -rf dist
 	rm -rf logs
 	find . -type f -name '*.pyc' -delete
 	find . -name '__pycache__' -ls -exec rm -rv {} +
-	find . -name '*.egg-info' -ls -exec rm -rv {} +
 
 docker_run:
 	docker run -d \
@@ -42,4 +35,4 @@ docker_clean:
 	docker rm $(VPN_CONTAINER)
 	docker rmi $(VPN_IMAGE)
 
-.PHONY: all venv run clean setup dev docker_run 
+.PHONY: all setup run clean docker_run docker_clean 
