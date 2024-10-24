@@ -32,25 +32,29 @@ class robotComms:
         )
         if not run_remote_url:
             self._LOGGER.INFO("Communication Instantiated via Local URL")
-            self._CURRENT_URL = self._LOCAL_URL
-            self._reindex_api()
-            self._LOGGER.INFO(f"Communication Initiated in Local Network at: {self._LOCAL_URL}")
+            self._CURRENT_URL = self.__LOCAL_URL
+            self.__reindex_api()
+            self._LOGGER.INFO(
+                f"Communication Initiated in Local Network at: {self.__LOCAL_URL}"
+            )
         else:
             self._LOGGER.INFO("Communication Instantiated via Remote URL")
             if remote_url == "":
                 self._LOGGER.CRITICAL("You have not provided any Remote URL")
                 self._LOGGER.CRITICAL(
-                    f"Do You want to use the saved url: {self._SAVED_REMOTE_URL} ?"
+                    f"Do You want to use the saved url: {self.__SAVED_REMOTE_URL} ?"
                 )
                 confirmation: str = input("(y/n)")
                 if confirmation != "y":
-                    self._REMOTE_URL = self.set_new_url(remote_url)
+                    self.__REMOTE_URL = self.set_new_url(remote_url)
                 else:
-                    self._REMOTE_URL = self._SAVED_REMOTE_URL
-                self._CURRENT_URL = self._REMOTE_URL
+                    self.__REMOTE_URL = self.__SAVED_REMOTE_URL
+                self._CURRENT_URL = self.__REMOTE_URL
 
-            self._reindex_api()
-            self._LOGGER.INFO(f"Communication Initiated in Remote Network at: {self._REMOTE_URL}")
+            self.__reindex_api()
+            self._LOGGER.INFO(
+                f"Communication Initiated in Remote Network at: {self.__REMOTE_URL}"
+            )
 
         self._API_ADAPTER: restAdapter = restAdapter(logger_instance=self._LOGGER)
 
@@ -61,7 +65,7 @@ class robotComms:
             self._LOGGER.INFO("URL Not Provided.")
             while new_url == "":
                 custom_url: str = input("Please Enter New URL: ")
-                custom_url = self._santize_url(new_url)
+                custom_url = self.__santize_url(new_url)
                 confirmation: str = input(f"Confirm New URL: {custom_url}? (y/n)")
                 if confirmation != "y":
                     self._LOGGER.INFO("Try Again")
@@ -69,79 +73,80 @@ class robotComms:
                 else:
                     new_url = custom_url
         else:
-            new_url = self._santize_url(new_url)
+            new_url = self.__santize_url(new_url)
         self._LOGGER.INFO(f"URL Confirmed: {new_url}")
         return new_url
 
     def get_core_system_capabilities(self) -> Result:
-        endpoint: str = self._API_DICTIONARY["core/system/capabilities"]
+        endpoint: str = self.__API_DICTIONARY["core/system/capabilities"]
         response: Result = self._API_ADAPTER.get(full_endpoint=endpoint)
         return response
 
     # Private Methods
-    def _reindex_api(self) -> None:
+    def __reindex_api(self) -> None:
         self._LOGGER.DEBUG("Regenerating API")
         # Clear the existing API typing.Dictionary
-        self._API_DICTIONARY.clear()
+        self.__API_DICTIONARY.clear()
 
         # Generate API and Appdend to typing.Dictionary
         key: str = ""
         value: str = ""
-        for plugin in self._plugins:
-            for feature in self._feature[plugin]:
+        for plugin in self.__plugins:
+            for feature in self.__feature[plugin]:
                 if feature == "":
                     feature = plugin
-                    for resource in self._resources[feature]:
+                    for resource in self.__resources[feature]:
                         key = f"{plugin}/{resource}"
                         value = f"{
-                            self._CURRENT_URL}/api/{plugin}/{self._VERSION_NUM}/{resource}"
-                        self._API_DICTIONARY[key] = value
+                            self._CURRENT_URL}/api/{plugin}/{self.__VERSION_NUM}/{resource}"
+                        self.__API_DICTIONARY[key] = value
                 else:
-                    for resource in self._resources[feature]:
+                    for resource in self.__resources[feature]:
                         key = f"{plugin}/{feature}/{resource}"
                         value = (
                             f"{self._CURRENT_URL}/api/{plugin}"
-                            f"/{feature}/{self._VERSION_NUM}/{resource}"
+                            f"/{feature}/{self.__VERSION_NUM}/{resource}"
                         )
-                        self._API_DICTIONARY[key] = value
+                        self.__API_DICTIONARY[key] = value
 
-    def _santize_url(self, url: str) -> str:
+    def __santize_url(self, url: str) -> str:
         # Check for http in Remote URL
         http_check: str = url[0:7]
         if http_check != "http://":
             url = "http://" + url
         return url
 
-    # Class Variables
-    _LOCAL_URL: str = "http://192.168.11.1:1448"
-    _SAVED_REMOTE_URL: str = "http://10.168.1.101:1448"
-
     def get_local_url(self) -> str:
-        return self._LOCAL_URL
+        return self.__LOCAL_URL
 
     def set_local_url(self, url: str = "") -> None:
-        self._LOCAL_URL = self.set_new_url(url)
-        self._CURRENT_URL = self._LOCAL_URL
-        self._reindex_api()
-        self._LOGGER.INFO(f"Communication Initiated in Local Network at: {self._LOCAL_URL}")
-
-    _REMOTE_URL: str = ""
+        self.__LOCAL_URL = self.set_new_url(url)
+        self._CURRENT_URL = self.__LOCAL_URL
+        self.__reindex_api()
+        self._LOGGER.INFO(
+            f"Communication Initiated in Local Network at: {self.__LOCAL_URL}"
+        )
 
     def get_remote_url(self) -> str:
-        return self._REMOTE_URL
+        return self.__REMOTE_URL
 
     def set_remote_url(self, url: str = "") -> None:
-        self._REMOTE_URL = self.set_new_url(url)
-        self._CURRENT_URL = self._REMOTE_URL
-        self._reindex_api()
-        self._LOGGER.INFO(f"Communication Initiated in Remote Network at: {self._REMOTE_URL}")
+        self.__REMOTE_URL = self.set_new_url(url)
+        self._CURRENT_URL = self.__REMOTE_URL
+        self.__reindex_api()
+        self._LOGGER.INFO(
+            f"Communication Initiated in Remote Network at: {self.__REMOTE_URL}"
+        )
 
-    _VERSION_NUM: str = "v1"
-
+    # Class Variables
+    __LOCAL_URL: str = "http://192.168.11.1:1448"
+    __SAVED_REMOTE_URL: str = "http://10.168.1.101:1448"
+    __REMOTE_URL: str = ""
+    __VERSION_NUM: str = "v1"
     # API Interfaces
-    _API_DICTIONARY: typing.Dict[str, str] = {}
-    _plugins: typing.List[str] = ["core", "platform", "multi-floor", "delivery"]
-    _feature: typing.Dict[str, typing.List[str]] = {
+    __API_DICTIONARY: typing.Dict[str, str] = {}
+    __plugins: typing.List[str] = ["core", "platform", "multi-floor", "delivery"]
+    __feature: typing.Dict[str, typing.List[str]] = {
         "core": [
             "system",
             "slam",
@@ -159,7 +164,7 @@ class robotComms:
         ],
         "delivery": [""],
     }
-    _resources: typing.Dict[str, typing.List[str]] = {
+    __resources: typing.Dict[str, typing.List[str]] = {
         "system": [
             "capabilities",
             "power/status",
@@ -286,7 +291,6 @@ class robotComms:
 def main():
     r1 = robotComms(console_logging=True, run_remote_url=True)
     result = r1.get_core_system_capabilities()
-
     print(f"Code: {result.status_code} | Log: {result.data}")
 
 

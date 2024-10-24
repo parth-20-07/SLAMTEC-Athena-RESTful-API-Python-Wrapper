@@ -40,9 +40,9 @@ class restAdapter:
         full_endpoint: str,
         params: typing.Optional[typing.Dict[str, str]] = None,
     ) -> Result:
-        return self._do(http_method="GET", endpoint=full_endpoint, ep_params=params)
+        return self.__do(http_method="GET", endpoint=full_endpoint, ep_params=params)
 
-    def _do(
+    def __do(
         self,
         http_method: str,
         endpoint: str,
@@ -66,7 +66,9 @@ class restAdapter:
         data_out: typing.List[typing.Dict[str, str]] = response.json()
 
         if status_code == requests.codes.ok:
-            self._LOGGER.INFO(f"[OK] => {status_code} : {json.dumps(data_out, indent =2)}")
+            self._LOGGER.INFO(
+                f"[OK] => {status_code} : {json.dumps(data_out, indent =2)}"
+            )
             return Result(status_code, data_out)
 
         raise Exception(f"{status_code}: {response.reason}")
