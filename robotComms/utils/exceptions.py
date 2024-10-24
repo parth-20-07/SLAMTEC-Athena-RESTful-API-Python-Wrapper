@@ -1,2 +1,0 @@
-class restApiExceptions(Exception):
-    pass

@@ -5,8 +5,7 @@ VPN_CONTAINER := pgy_vpn
 
 all: venv
 
-setup: pyproject.toml
-	poetry shell
+setup: pyproject.toml $(VENV)
 	poetry install
 
 run: $(VENV)

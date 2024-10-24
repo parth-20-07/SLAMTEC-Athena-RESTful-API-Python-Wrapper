@@ -2,6 +2,7 @@
 import typing
 
 # Utils Dependencies
+from utils.results import Result
 from utils.logger import systemLogger
 from utils.rest_adapter import restAdapter
 
@@ -33,9 +34,7 @@ class robotComms:
             self._LOGGER.INFO("Communication Instantiated via Local URL")
             self._CURRENT_URL = self._LOCAL_URL
             self._reindex_api()
-            self._LOGGER.INFO(
-                f"Communication Initiated in Local Network at: {self._LOCAL_URL}"
-            )
+            self._LOGGER.INFO(f"Communication Initiated in Local Network at: {self._LOCAL_URL}")
         else:
             self._LOGGER.INFO("Communication Instantiated via Remote URL")
             if remote_url == "":
@@ -51,9 +50,7 @@ class robotComms:
                 self._CURRENT_URL = self._REMOTE_URL
 
             self._reindex_api()
-            self._LOGGER.INFO(
-                f"Communication Initiated in Remote Network at: {self._REMOTE_URL}"
-            )
+            self._LOGGER.INFO(f"Communication Initiated in Remote Network at: {self._REMOTE_URL}")
 
         self._API_ADAPTER: restAdapter = restAdapter(logger_instance=self._LOGGER)
 
@@ -76,11 +73,9 @@ class robotComms:
         self._LOGGER.INFO(f"URL Confirmed: {new_url}")
         return new_url
 
-    def get_core_system_capabilities(self):
+    def get_core_system_capabilities(self) -> Result:
         endpoint: str = self._API_DICTIONARY["core/system/capabilities"]
-        response: typing.Union[
-            int, typing.List[typing.Dict[typing.Any, typing.Any]]
-        ] = self._API_ADAPTER.get(full_endpoint=endpoint)
+        response: Result = self._API_ADAPTER.get(full_endpoint=endpoint)
         return response
 
     # Private Methods
@@ -128,9 +123,7 @@ class robotComms:
         self._LOCAL_URL = self.set_new_url(url)
         self._CURRENT_URL = self._LOCAL_URL
         self._reindex_api()
-        self._LOGGER.INFO(
-            f"Communication Initiated in Local Network at: {self._LOCAL_URL}"
-        )
+        self._LOGGER.INFO(f"Communication Initiated in Local Network at: {self._LOCAL_URL}")
 
     _REMOTE_URL: str = ""
 
@@ -141,9 +134,7 @@ class robotComms:
         self._REMOTE_URL = self.set_new_url(url)
         self._CURRENT_URL = self._REMOTE_URL
         self._reindex_api()
-        self._LOGGER.INFO(
-            f"Communication Initiated in Remote Network at: {self._REMOTE_URL}"
-        )
+        self._LOGGER.INFO(f"Communication Initiated in Remote Network at: {self._REMOTE_URL}")
 
     _VERSION_NUM: str = "v1"
 
@@ -294,9 +285,9 @@ class robotComms:
 
 def main():
     r1 = robotComms(console_logging=True, run_remote_url=True)
-    r1.get_core_system_capabilities()
+    result = r1.get_core_system_capabilities()
 
-    print(r1)
+    print(f"Code: {result.status_code} | Log: {result.data}")
 
 
 if __name__ == "__main__":

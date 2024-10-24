@@ -14,8 +14,7 @@ __name__ = "restAdapter"
 
 # Custom Packages
 from utils.logger import systemLogger
-from utils.exceptions import restApiExceptions
-from utils.models import Result
+from utils.results import Result
 
 # Imported Packages
 import requests  # https://requests.readthedocs.io/en/latest/user/quickstart/#
@@ -59,19 +58,15 @@ class restAdapter:
                 timeout=self._REQUEST_TIMEOUT,
             )
 
-        except requests.exceptions.RequestException as e:
-            raise restApiExceptions("Request Failed") from e
+        except requests.exceptions.Timeout as e:
+            self._LOGGER.ERROR(f"[ERROR] => 408: Request Timeout | {e}")
+            return Result(408)
 
-        try:
-            status_code: int = response.status_code
-            data_out: typing.List[typing.Dict[str, str]] = response.json()
-        except (ValueError, requests.JSONDecodeError) as e:
-            raise restApiExceptions("Bad JSON in Response") from e
+        status_code: int = response.status_code
+        data_out: typing.List[typing.Dict[str, str]] = response.json()
 
         if status_code == requests.codes.ok:
-            self._LOGGER.INFO(
-                f"[OK] => {status_code} : {json.dumps(data_out, indent =2)}"
-            )
-            return data_out
+            self._LOGGER.INFO(f"[OK] => {status_code} : {json.dumps(data_out, indent =2)}")
+            return Result(status_code, data_out)
 
-        raise restApiExceptions(f"{status_code}: {response.reason}")
+        raise Exception(f"{status_code}: {response.reason}")
