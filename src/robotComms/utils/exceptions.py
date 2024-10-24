@@ -1,0 +1,2 @@
+class restApiExceptions(Exception):
+    pass
