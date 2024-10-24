@@ -9,4 +9,4 @@ jobs:
         with:
           version: 0.0.259
           args: check --select B config ruff.toml
-          src: "./src"
+          src: "./robotComms"
