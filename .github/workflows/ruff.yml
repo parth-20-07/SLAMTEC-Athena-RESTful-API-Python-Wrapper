@@ -8,5 +8,5 @@ jobs:
       - uses: astral-sh/ruff-action@v1
         with:
           version: 0.0.259
-          args: check --select B config ruff.toml
-          src: "./robotComms"
+          args: check --select B config pyproject.toml
+          src: "robotComms/"

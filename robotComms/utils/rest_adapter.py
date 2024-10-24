@@ -66,9 +66,7 @@ class restAdapter:
         data_out: typing.List[typing.Dict[str, str]] = response.json()
 
         if status_code == requests.codes.ok:
-            self._LOGGER.INFO(
-                f"[OK] => {status_code} : {json.dumps(data_out, indent =2)}"
-            )
+            self._LOGGER.INFO(f"[OK] => {status_code} : {json.dumps(data_out, indent =2)}")
             return Result(status_code, data_out)
 
         raise Exception(f"{status_code}: {response.reason}")

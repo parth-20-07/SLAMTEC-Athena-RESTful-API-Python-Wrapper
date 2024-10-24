@@ -9,11 +9,14 @@ setup: pyproject.toml $(VENV)
 	poetry install
 
 run: $(VENV)
+	black robotComms
+	ruff check robotComms
 	./$(VENV)/bin/python3 robotComms/robotComms.py
 
 clean:
 	rm -rf $(VENV)
 	rm -rf dist
+	rm -rf .ruff_cache
 	rm -rf logs
 	find . -type f -name '*.pyc' -delete
 	find . -name '__pycache__' -ls -exec rm -rv {} +
