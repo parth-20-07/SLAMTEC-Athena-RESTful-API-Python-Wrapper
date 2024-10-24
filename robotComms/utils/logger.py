@@ -42,12 +42,16 @@ class systemLogger:
         self._LOGGER.setLevel(logging.DEBUG)
 
         # Setup Formatting
-        formatter = logging.Formatter("[%(asctime)s] %(levelname)s: %(message)s")
+        formatter = logging.Formatter(
+            "[%(asctime)s] %(name)s %(levelname)s: %(message)s"
+        )
 
         # Setup Logger to File => Logs Everything
         if not os.path.exists(log_file_path):
             os.makedirs(log_file_path)
-        fileHandler = logging.FileHandler(f"{log_file_path}/{datetime.datetime.now()}-log.log")
+        fileHandler = logging.FileHandler(
+            f"{log_file_path}/{datetime.datetime.now()}-log.log"
+        )
         fileHandler.setLevel(logging.DEBUG)
         fileHandler.setFormatter(formatter)
 

@@ -24,15 +24,23 @@ import json
 
 
 class restAdapter:
-    def __init__(self, logger_instance: systemLogger, timeout: float = 1.0) -> None:
-        self._LOGGER: systemLogger = logger_instance
+    def __init__(
+        self,
+        logger_instance: typing.Optional[systemLogger] = None,
+        timeout: float = 1.0,
+    ) -> None:
+        self._LOGGER: systemLogger = logger_instance or systemLogger(
+            logger_name="restApi_logger",
+            log_file_path="logs",
+            enable_console_logging=True,
+        )
         self._REQUEST_TIMEOUT: float = timeout
 
     def get(
         self,
         full_endpoint: str,
         params: typing.Optional[typing.Dict[str, str]] = None,
-    ) -> typing.Union[int, typing.List[typing.Dict[typing.Any, typing.Any]]]:
+    ) -> Result:
         return self._do(http_method="GET", endpoint=full_endpoint, ep_params=params)
 
     def _do(
@@ -41,7 +49,7 @@ class restAdapter:
         endpoint: str,
         ep_params: typing.Optional[typing.Dict[str, str]] = None,
         data: typing.Optional[typing.Dict[str, str]] = None,
-    ) -> typing.Union[int, typing.List[typing.Dict[typing.Any, typing.Any]]]:
+    ) -> Result:
         try:
             self._LOGGER.INFO(f"{http_method} => {endpoint} | Payload: {ep_params}")
             response: requests.Response = requests.request(
@@ -61,7 +69,9 @@ class restAdapter:
             raise restApiExceptions("Bad JSON in Response") from e
 
         if status_code == requests.codes.ok:
-            self._LOGGER.INFO(f"[OK] => {status_code} : {json.dumps(data_out, indent =2)}")
+            self._LOGGER.INFO(
+                f"[OK] => {status_code} : {json.dumps(data_out, indent =2)}"
+            )
             return data_out
 
         raise restApiExceptions(f"{status_code}: {response.reason}")
