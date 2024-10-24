@@ -8,9 +8,7 @@ class robotConnection:
         self.__MAX_CONNECTION_ATTEMPTS = max_attempts
         self.__LOGGER: systemLogger = logger
 
-    def initialize_connection(
-        self, ip_addr: str, remote_connection: bool = False
-    ) -> bool:
+    def initialize_connection(self, ip_addr: str, remote_connection: bool = False) -> bool:
         if not remote_connection:  # Connection in local network
             if self.__ping(ip_addr):
                 return True
@@ -35,7 +33,7 @@ class robotConnection:
 
             try:
                 result: int = int(response.stdout)
-            except:
+            except ValueError:
                 self.__LOGGER.ERROR("Incorrect IP Address provided. Please check!")
                 return False
 

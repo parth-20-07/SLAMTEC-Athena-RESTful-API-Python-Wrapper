@@ -37,18 +37,18 @@ src = ["src"]  # for ruff isort
 extend-exclude = [
   "pyproject.toml",
 ]
-select = ["E4", "E7", "E9", "F", "B", "Q"]
-ignore = ["E501"]
-unfixable = ["B"]
+lint.select = ["E4", "E7", "E9", "F", "B", "Q"]
+lint.ignore = ["E501"]
+lint.unfixable = ["B"]
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["E402"]
 "**/{tests,docs,tools}/*" = ["E402"]
 
-[tool.ruff.flake8-quotes]
+[tool.ruff.lint.flake8-quotes]
 docstring-quotes = "double"
 
-[tool.ruff.pydocstyle]
+[tool.ruff.lint.pydocstyle]
 convention = "google"
 
 

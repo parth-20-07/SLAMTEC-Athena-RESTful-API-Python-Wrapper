@@ -35,9 +35,10 @@ class robotComms:
 
         if not run_remote_url:
             self.__LOGGER.INFO("Communication Instantiated via Local URL")
-            self._CURRENT_URL = self.__LOCAL_URL
+            self.__CURRENT_URL = self.__LOCAL_URL
             self.__VALID_CONNECTION = self.__ROBOT_CONNETION.initialize_connection(
-                ip_addr=self.__desantize_url(self._CURRENT_URL), remote_connection=False
+                ip_addr=self.__desantize_url(self.__CURRENT_URL),
+                remote_connection=False,
             )
             if self.__VALID_CONNECTION:
                 self.__reindex_api()
@@ -58,9 +59,9 @@ class robotComms:
                     self.__REMOTE_URL = self.set_new_url()
                 else:
                     self.__REMOTE_URL = self.__SAVED_REMOTE_URL
-                self._CURRENT_URL = self.__REMOTE_URL
+                self.__CURRENT_URL = self.__REMOTE_URL
                 self.__VALID_CONNECTION = self.__ROBOT_CONNETION.initialize_connection(
-                    ip_addr=self.__desantize_url(self._CURRENT_URL),
+                    ip_addr=self.__desantize_url(self.__CURRENT_URL),
                     remote_connection=True,
                 )
 
@@ -113,14 +114,13 @@ class robotComms:
                     feature = plugin
                     for resource in self.__resources[feature]:
                         key = f"{plugin}/{resource}"
-                        value = f"{
-                            self._CURRENT_URL}/api/{plugin}/{self.__VERSION_NUM}/{resource}"
+                        value = f"{self.__CURRENT_URL}/api/{plugin}/{self.__VERSION_NUM}/{resource}"
                         self.__API_DICTIONARY[key] = value
                 else:
                     for resource in self.__resources[feature]:
                         key = f"{plugin}/{feature}/{resource}"
                         value = (
-                            f"{self._CURRENT_URL}/api/{plugin}"
+                            f"{self.__CURRENT_URL}/api/{plugin}"
                             f"/{feature}/{self.__VERSION_NUM}/{resource}"
                         )
                         self.__API_DICTIONARY[key] = value
@@ -150,18 +150,17 @@ class robotComms:
 
     def set_local_url(self, url: str = "") -> None:
         self.__LOCAL_URL = self.set_new_url(url)
-        self._CURRENT_URL = self.__LOCAL_URL
+        self.__CURRENT_URL = self.__LOCAL_URL
         self.__VALID_CONNECTION = self.__VALID_CONNECTION = (
             self.__ROBOT_CONNETION.initialize_connection(
-                ip_addr=self.__desantize_url(self._CURRENT_URL), remote_connection=False
+                ip_addr=self.__desantize_url(self.__CURRENT_URL),
+                remote_connection=False,
             )
         )
 
         if self.__VALID_CONNECTION:
             self.__reindex_api()
-            self.__LOGGER.INFO(
-                f"Communication Initiated in Local Network at: {self.__LOCAL_URL}"
-            )
+            self.__LOGGER.INFO(f"Communication Initiated in Local Network at: {self.__LOCAL_URL}")
         else:
             self.set_local_url()
 
@@ -170,16 +169,14 @@ class robotComms:
 
     def set_remote_url(self, url: str = "") -> None:
         self.__REMOTE_URL = self.set_new_url(url)
-        self._CURRENT_URL = self.__REMOTE_URL
+        self.__CURRENT_URL = self.__REMOTE_URL
         self.__VALID_CONNECTION = self.__ROBOT_CONNETION.initialize_connection(
-            ip_addr=self.__desantize_url(self._CURRENT_URL), remote_connection=True
+            ip_addr=self.__desantize_url(self.__CURRENT_URL), remote_connection=True
         )
 
         if self.__VALID_CONNECTION:
             self.__reindex_api()
-            self.__LOGGER.INFO(
-                f"Communication Initiated in Remote Network at: {self.__REMOTE_URL}"
-            )
+            self.__LOGGER.INFO(f"Communication Initiated in Remote Network at: {self.__REMOTE_URL}")
         else:
             self.set_remote_url()
 

@@ -7,6 +7,6 @@ jobs:
       - uses: actions/checkout@v4
       - uses: astral-sh/ruff-action@v1
         with:
-          version: 0.0.259
-          args: check --select B config pyproject.toml
+          version: 0.7.0
+          args: check --verbose
           src: "robotComms/"
