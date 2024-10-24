@@ -5,6 +5,7 @@ import typing
 from utils.results import Result
 from utils.logger import systemLogger
 from utils.rest_adapter import restAdapter
+from utils.connection import robotConnection
 
 # TODO: Project Plan
 # [x] Setup a Switching Interface for URL Connection
@@ -25,62 +26,81 @@ class robotComms:
         run_remote_url: bool = False,
         remote_url: str = "",
     ) -> None:
-        self._LOGGER: systemLogger = systemLogger(
+        self.__LOGGER: systemLogger = systemLogger(
             logger_name="robotComms_logger",
             log_file_path="logs",
             enable_console_logging=console_logging,
         )
+        self.__ROBOT_CONNETION: robotConnection = robotConnection(self.__LOGGER)
+
         if not run_remote_url:
-            self._LOGGER.INFO("Communication Instantiated via Local URL")
+            self.__LOGGER.INFO("Communication Instantiated via Local URL")
             self._CURRENT_URL = self.__LOCAL_URL
-            self.__reindex_api()
-            self._LOGGER.INFO(f"Communication Initiated in Local Network at: {self.__LOCAL_URL}")
+            self.__VALID_CONNECTION = self.__ROBOT_CONNETION.initialize_connection(
+                ip_addr=self.__desantize_url(self._CURRENT_URL), remote_connection=False
+            )
+            if self.__VALID_CONNECTION:
+                self.__reindex_api()
+                self.__LOGGER.INFO(
+                    f"Communication Initiated in Local Network at: {self.__LOCAL_URL}"
+                )
+            else:
+                self.set_local_url()
         else:
-            self._LOGGER.INFO("Communication Instantiated via Remote URL")
+            self.__LOGGER.INFO("Communication Instantiated via Remote URL")
             if remote_url == "":
-                self._LOGGER.CRITICAL("You have not provided any Remote URL")
-                self._LOGGER.CRITICAL(
+                self.__LOGGER.CRITICAL("You have not provided any Remote URL")
+                self.__LOGGER.CRITICAL(
                     f"Do You want to use the saved url: {self.__SAVED_REMOTE_URL} ?"
                 )
                 confirmation: str = input("(y/n)")
                 if confirmation != "y":
-                    self.__REMOTE_URL = self.set_new_url(remote_url)
+                    self.__REMOTE_URL = self.set_new_url()
                 else:
                     self.__REMOTE_URL = self.__SAVED_REMOTE_URL
                 self._CURRENT_URL = self.__REMOTE_URL
+                self.__VALID_CONNECTION = self.__ROBOT_CONNETION.initialize_connection(
+                    ip_addr=self.__desantize_url(self._CURRENT_URL),
+                    remote_connection=True,
+                )
 
-            self.__reindex_api()
-            self._LOGGER.INFO(f"Communication Initiated in Remote Network at: {self.__REMOTE_URL}")
+            if self.__VALID_CONNECTION:
+                self.__reindex_api()
+                self.__LOGGER.INFO(
+                    f"Communication Initiated in Remote Network at: {self.__REMOTE_URL}"
+                )
+            else:
+                self.set_remote_url()
 
-        self._API_ADAPTER: restAdapter = restAdapter(logger_instance=self._LOGGER)
+        self.__API_ADAPTER: restAdapter = restAdapter(logger_instance=self.__LOGGER)
 
     # Public Methods
     def set_new_url(self, new_url: str = "") -> str:
         # Get Input for Remote URL
         if new_url == "":
-            self._LOGGER.INFO("URL Not Provided.")
+            self.__LOGGER.INFO("URL Not Provided.")
             while new_url == "":
                 custom_url: str = input("Please Enter New URL: ")
-                custom_url = self.__santize_url(new_url)
+                custom_url = self.__santize_url(custom_url)
                 confirmation: str = input(f"Confirm New URL: {custom_url}? (y/n)")
                 if confirmation != "y":
-                    self._LOGGER.INFO("Try Again")
+                    self.__LOGGER.INFO("Try Again")
                     custom_url = ""
                 else:
                     new_url = custom_url
         else:
             new_url = self.__santize_url(new_url)
-        self._LOGGER.INFO(f"URL Confirmed: {new_url}")
+        self.__LOGGER.INFO(f"URL Confirmed: {new_url}")
         return new_url
 
     def get_core_system_capabilities(self) -> Result:
         endpoint: str = self.__API_DICTIONARY["core/system/capabilities"]
-        response: Result = self._API_ADAPTER.get(full_endpoint=endpoint)
+        response: Result = self.__API_ADAPTER.get(full_endpoint=endpoint)
         return response
 
     # Private Methods
     def __reindex_api(self) -> None:
-        self._LOGGER.DEBUG("Regenerating API")
+        self.__LOGGER.DEBUG("Regenerating API")
         # Clear the existing API typing.Dictionary
         self.__API_DICTIONARY.clear()
 
@@ -110,6 +130,19 @@ class robotComms:
         http_check: str = url[0:7]
         if http_check != "http://":
             url = "http://" + url
+        port_check: str = url[-5:]
+        if port_check[0] != ":":
+            url = url + ":1448"
+        return url
+
+    def __desantize_url(self, url: str) -> str:
+        # Check for http in Remote URL
+        http_check: str = url[0:7]
+        if http_check == "http://":
+            url = url[7:]
+        port_check: str = url[-5:]
+        if port_check[0] == ":":
+            url = url[0:-5]
         return url
 
     def get_local_url(self) -> str:
@@ -118,8 +151,19 @@ class robotComms:
     def set_local_url(self, url: str = "") -> None:
         self.__LOCAL_URL = self.set_new_url(url)
         self._CURRENT_URL = self.__LOCAL_URL
-        self.__reindex_api()
-        self._LOGGER.INFO(f"Communication Initiated in Local Network at: {self.__LOCAL_URL}")
+        self.__VALID_CONNECTION = self.__VALID_CONNECTION = (
+            self.__ROBOT_CONNETION.initialize_connection(
+                ip_addr=self.__desantize_url(self._CURRENT_URL), remote_connection=False
+            )
+        )
+
+        if self.__VALID_CONNECTION:
+            self.__reindex_api()
+            self.__LOGGER.INFO(
+                f"Communication Initiated in Local Network at: {self.__LOCAL_URL}"
+            )
+        else:
+            self.set_local_url()
 
     def get_remote_url(self) -> str:
         return self.__REMOTE_URL
@@ -127,10 +171,20 @@ class robotComms:
     def set_remote_url(self, url: str = "") -> None:
         self.__REMOTE_URL = self.set_new_url(url)
         self._CURRENT_URL = self.__REMOTE_URL
-        self.__reindex_api()
-        self._LOGGER.INFO(f"Communication Initiated in Remote Network at: {self.__REMOTE_URL}")
+        self.__VALID_CONNECTION = self.__ROBOT_CONNETION.initialize_connection(
+            ip_addr=self.__desantize_url(self._CURRENT_URL), remote_connection=True
+        )
+
+        if self.__VALID_CONNECTION:
+            self.__reindex_api()
+            self.__LOGGER.INFO(
+                f"Communication Initiated in Remote Network at: {self.__REMOTE_URL}"
+            )
+        else:
+            self.set_remote_url()
 
     # Class Variables
+    __VALID_CONNECTION: bool = False
     __LOCAL_URL: str = "http://192.168.11.1:1448"
     __SAVED_REMOTE_URL: str = "http://10.168.1.101:1448"
     __REMOTE_URL: str = ""

@@ -9,9 +9,10 @@ setup: pyproject.toml $(VENV)
 	poetry install
 
 run: $(VENV)
+	./$(VENV)/bin/python3 robotComms/robotComms.py
+format:
 	black robotComms
 	ruff check robotComms
-	./$(VENV)/bin/python3 robotComms/robotComms.py
 
 clean:
 	rm -rf $(VENV)
@@ -37,4 +38,4 @@ docker_clean:
 	docker rm $(VPN_CONTAINER)
 	docker rmi $(VPN_IMAGE)
 
-.PHONY: all setup run clean docker_run docker_clean 
+.PHONY: all setup run format clean docker_run docker_clean 
