@@ -9,7 +9,7 @@ setup: pyproject.toml
 	poetry shell
 	poetry install
 
-run: setup
+run: $(VENV)
 	./$(VENV)/bin/python3 robotComms/robotComms.py
 
 clean:

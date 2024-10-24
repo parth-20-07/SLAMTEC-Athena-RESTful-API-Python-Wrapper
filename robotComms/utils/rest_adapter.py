@@ -55,14 +55,13 @@ class restAdapter:
             raise restApiExceptions("Request Failed") from e
 
         try:
+            status_code: int = response.status_code
             data_out: typing.List[typing.Dict[str, str]] = response.json()
         except (ValueError, requests.JSONDecodeError) as e:
             raise restApiExceptions("Bad JSON in Response") from e
 
-        if response.status_code == requests.codes.ok:
-            self._LOGGER.INFO(
-                f"[OK] => {response.status_code} : {json.dumps(response.json(), indent =2)}"
-            )
-            return response.json()
+        if status_code == requests.codes.ok:
+            self._LOGGER.INFO(f"[OK] => {status_code} : {json.dumps(data_out, indent =2)}")
+            return data_out
 
-        raise restApiExceptions(f"{response.status_code}: {response.reason}")
+        raise restApiExceptions(f"{status_code}: {response.reason}")

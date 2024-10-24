@@ -1,6 +1,5 @@
 # System Dependencies
 import typing
-import json
 
 # Utils Dependencies
 from utils.logger import systemLogger
