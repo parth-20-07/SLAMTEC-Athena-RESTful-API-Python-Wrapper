@@ -58,6 +58,23 @@ class restAdapter:
         """
         return self.__do(http_method="GET", endpoint=full_endpoint, ep_params=params)
 
+    def post(
+        self,
+        full_endpoint: str,
+        params: typing.Optional[typing.Dict[str, typing.Any]] = None,
+    ) -> Result:
+        """
+        Generate POST Request
+
+        Args:
+            full_endpoint: Complete endpoint of format: http://{ip}:{port}/{endpoint}
+            params: Dictionary of Parameters to Post Data
+
+        Returns:
+            Result: Status Code with message
+        """
+        return self.__do(http_method="POST", endpoint=full_endpoint, ep_params=params)
+
     def __do(
         self,
         http_method: str,
