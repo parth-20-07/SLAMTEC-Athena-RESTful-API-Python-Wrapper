@@ -1,40 +1,29 @@
-[build-system]
-requires = [
-    "setuptools>=42",
-    "wheel"
-]
-build-backend = "setuptools.build_meta"
-
-[project]
-name = "robotComms"
-version = "0.1"
+[tool.poetry]
+name = "robotcomms"
+version = "0.1.0"
 description = "Python Adapter Library with an abstraction layer to communicate with SLAMTEC Athena Robot over RESTful API"
-authors = [{name = "Parth Patel"}, {email = "parth.pmech@gmail.com"}]
+authors = ["Parth Patel <parth.pmech@gmail.com>"]
 readme = "README.md"
-license = { file="LICENSE" }
-requires-python = ">=3.8"
-dependencies = [
-    "annotated-types>=0.7.0",
-    "pydantic>=2.9.2",
-    "pydantic_core>=2.23.4",
-    "pytest>=8.3.3",
-    "python-dateutil>=2.9.0.post0",
-    "requests >= 2.32.3",
-    "typing_extensions>=4.12.2",
-]
+package-mode = false # TODO: Turn this to true when the development is complete
+
+[tool.poetry.dependencies]
+python = "^3.12"
+typing_extensions = "^4.12.2"
+pytest = "^8.3.3"
+dateutils = "^0.6.12"
+requests = "^2.32.3"
+black = "^24.10.0"
+ruff = "^0.7.0"
+docker = "^7.1.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
 
 [project.urls]
 "Homepage" = "https://github.com/parth-20-07/SLAMTEC-Athena-RESTful-API-Python-Wrapper.git"
-
-[project.optional-dependencies]
-dev = [
-    "black",
-    "jedi",
-    "ruff"
-]
-
-#[tool.setuptools]
-#packages = ["src/robotComms/utils"]
 
 ###############################################
 # Dev Tools Dependecies Setup
@@ -48,18 +37,18 @@ src = ["src"]  # for ruff isort
 extend-exclude = [
   "pyproject.toml",
 ]
-select = ["E4", "E7", "E9", "F", "B", "Q"]
-ignore = ["E501"]
-unfixable = ["B"]
+lint.select = ["E4", "E7", "E9", "F", "B", "Q"]
+lint.ignore = ["E501"]
+lint.unfixable = ["B"]
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["E402"]
 "**/{tests,docs,tools}/*" = ["E402"]
 
-[tool.ruff.flake8-quotes]
+[tool.ruff.lint.flake8-quotes]
 docstring-quotes = "double"
 
-[tool.ruff.pydocstyle]
+[tool.ruff.lint.pydocstyle]
 convention = "google"
 
 
@@ -70,3 +59,4 @@ line-length = 100
 skip-magic-trailing-comma = false
 skip-string-normalization = false
 target-version = ['py39', 'py310', 'py311', 'py312']
+

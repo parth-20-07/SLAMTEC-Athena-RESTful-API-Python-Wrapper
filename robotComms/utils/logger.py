@@ -29,20 +29,16 @@ class systemLogger:
         which is mandatory and an optional logging to the console.
 
         Args:
-            logger_name: Name for the Logger Instance.
-                            Default: 'logger'
-            log_file_path: Path for saving the log file. Can be absolute or relative.
-                            Default: `{project_dir}/logs/`
-            enable_console_logging: Boolean to decide weather to log in console or not.
-                            Setting to false will only print ERRORS AND CRITICAL Messages.
-                            Default: True
+            logger_name: Name for the Logger Instance. Default: 'logger'
+            log_file_path: Path for saving the log file. Can be absolute or relative. Default: `{project_dir}/logs/`
+            enable_console_logging: Boolean to decide weather to log in console or not. Setting to false will only print ERRORS AND CRITICAL Messages. Default: True
         """
         # Setup Logger
-        self._LOGGER = logging.getLogger(logger_name)
+        self._LOGGER: logging.Logger = logging.getLogger(logger_name)
         self._LOGGER.setLevel(logging.DEBUG)
 
         # Setup Formatting
-        formatter = logging.Formatter("[%(asctime)s] %(message)s")
+        formatter = logging.Formatter("[%(asctime)s] %(name)s %(levelname)s: %(message)s")
 
         # Setup Logger to File => Logs Everything
         if not os.path.exists(log_file_path):
