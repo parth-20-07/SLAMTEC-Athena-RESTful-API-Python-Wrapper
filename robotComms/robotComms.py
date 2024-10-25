@@ -1,11 +1,7 @@
-# System Dependencies
-import typing
-
 # Utils Dependencies
-from utils.results import Result
 from utils.logger import systemLogger
-from utils.rest_adapter import restAdapter
 from utils.connection import robotConnection
+from api_classes.system import system
 
 # TODO: Project Plan
 # [x] Setup a Switching Interface for URL Connection
@@ -41,7 +37,6 @@ class robotComms:
                 remote_connection=False,
             )
             if self.__VALID_CONNECTION:
-                self.__reindex_api()
                 self.__LOGGER.INFO(
                     f"Communication Initiated in Local Network at: {self.__LOCAL_URL}"
                 )
@@ -66,14 +61,13 @@ class robotComms:
                 )
 
             if self.__VALID_CONNECTION:
-                self.__reindex_api()
                 self.__LOGGER.INFO(
                     f"Communication Initiated in Remote Network at: {self.__REMOTE_URL}"
                 )
             else:
                 self.set_remote_url()
 
-        self.__API_ADAPTER: restAdapter = restAdapter(logger_instance=self.__LOGGER)
+        self.system = system(self.__CURRENT_URL, self.__API_VERSION_NUM, self.__LOGGER)
 
     # Public Methods
     def set_new_url(self, new_url: str = "") -> str:
@@ -93,37 +87,6 @@ class robotComms:
             new_url = self.__santize_url(new_url)
         self.__LOGGER.INFO(f"URL Confirmed: {new_url}")
         return new_url
-
-    def get_core_system_capabilities(self) -> Result:
-        endpoint: str = self.__API_DICTIONARY["core/system/capabilities"]
-        response: Result = self.__API_ADAPTER.get(full_endpoint=endpoint)
-        return response
-
-    # Private Methods
-    def __reindex_api(self) -> None:
-        self.__LOGGER.DEBUG("Regenerating API")
-        # Clear the existing API typing.Dictionary
-        self.__API_DICTIONARY.clear()
-
-        # Generate API and Appdend to typing.Dictionary
-        key: str = ""
-        value: str = ""
-        for plugin in self.__plugins:
-            for feature in self.__feature[plugin]:
-                if feature == "":
-                    feature = plugin
-                    for resource in self.__resources[feature]:
-                        key = f"{plugin}/{resource}"
-                        value = f"{self.__CURRENT_URL}/api/{plugin}/{self.__VERSION_NUM}/{resource}"
-                        self.__API_DICTIONARY[key] = value
-                else:
-                    for resource in self.__resources[feature]:
-                        key = f"{plugin}/{feature}/{resource}"
-                        value = (
-                            f"{self.__CURRENT_URL}/api/{plugin}"
-                            f"/{feature}/{self.__VERSION_NUM}/{resource}"
-                        )
-                        self.__API_DICTIONARY[key] = value
 
     def __santize_url(self, url: str) -> str:
         # Check for http in Remote URL
@@ -159,7 +122,6 @@ class robotComms:
         )
 
         if self.__VALID_CONNECTION:
-            self.__reindex_api()
             self.__LOGGER.INFO(f"Communication Initiated in Local Network at: {self.__LOCAL_URL}")
         else:
             self.set_local_url()
@@ -175,7 +137,6 @@ class robotComms:
         )
 
         if self.__VALID_CONNECTION:
-            self.__reindex_api()
             self.__LOGGER.INFO(f"Communication Initiated in Remote Network at: {self.__REMOTE_URL}")
         else:
             self.set_remote_url()
@@ -185,156 +146,17 @@ class robotComms:
     __LOCAL_URL: str = "http://192.168.11.1:1448"
     __SAVED_REMOTE_URL: str = "http://10.168.1.101:1448"
     __REMOTE_URL: str = ""
-    __VERSION_NUM: str = "v1"
-    # API Interfaces
-    __API_DICTIONARY: typing.Dict[str, str] = {}
-    __plugins: typing.List[str] = ["core", "platform", "multi-floor", "delivery"]
-    __feature: typing.Dict[str, typing.List[str]] = {
-        "core": [
-            "system",
-            "slam",
-            "artifact",
-            "motion",
-            "firmware",
-            "statistics",
-            "sensors",
-            "application",
-        ],
-        "platform": [""],
-        "multi-floor": [
-            "map",
-            "localization",
-        ],
-        "delivery": [""],
-    }
-    __resources: typing.Dict[str, typing.List[str]] = {
-        "system": [
-            "capabilities",
-            "power/status",
-            "power/:shutdown",
-            "power/:hibernate",
-            "power/:wakeup",
-            "power/:restartmodule",
-            "robot/info",
-            "robot/health",
-            "laserscan",
-            "parameter",
-            "network/status",
-            "network/route",
-            "network/apn",
-            "cube/config",
-            "light/control",
-            "rawadcimu",
-            "rawimu",
-        ],
-        "slam": [
-            "localization/pose",
-            "localization/odopose",
-            "localization/quality",
-            "localization/:enable",
-            "localization/status/:reset",
-            "mapping/:enable",
-            "loopclosure/:enable",
-            "homepose",
-            "homedocks",
-            "homedocks/:register",
-            "imu",
-            "knownarea",
-            "maps",
-            "maps/explore",
-            "maps/stcm",
-            "maps/origin",
-        ],
-        "artifact": [
-            "lines",
-            "rectangle-areas",
-            "pois",
-            "pois/:adjust",
-            "laser-landmarks",
-            "laser-landmarks/:update",
-            "laser-landmarks/:remove",
-        ],
-        "motion": [
-            "actions",
-            "action-factories",
-            "actions/:current",
-            "path",
-            "milestones",
-            "speed",
-            "time",
-            ":search_path",
-            "strategies",
-            "strategies/:current",
-        ],
-        "firmware": [
-            "newversion",
-            "autoupdate/:enable",
-            "autoupdate/:start",
-            "update/:start",
-            "progress",
-        ],
-        "statistics": [
-            "odometry",
-            "runtime",
-        ],
-        "sensors": [
-            "depth/:enable",
-            "masks",
-        ],
-        "application": [
-            "apps",
-        ],
-        "platform": [
-            "timestamp",
-            "events",
-        ],
-        "map": [
-            "floors",
-            "floors/:current",
-            "pois",
-            "pois/:search_nearby",
-            "pois/:dispatch",
-            "homedocks",
-            "homedocks/:current",
-            "homedocks/:search_nearby",
-            "stcm",
-            "stcm/:save",
-            "stcm/:reload",
-            "stcm/:sync",
-            "search_path_points",
-            "elevators",
-        ],
-        "localization": ["pose"],
-        "delivery": [
-            "admin/password",
-            "admin/mode",
-            "admin/language",
-            "admin/working_time",
-            "admin/move_options",
-            "admin/line_speed",
-            "configurations",
-            "settings",
-            "settings/timeout",
-            "voice_resources",
-            "cargos",
-            "cargos/assigned",
-            "tasks",
-            "tasks/:batch",
-            "tasks/orders",
-            "tasks/:task_execution",
-            "tasks/:task_finish",
-            "tasks/:start_pickup",
-            "tasks/:end_pickup",
-            "tasks/:end_operation",
-            "stage",
-        ],
-    }
+    __API_VERSION_NUM: str = "v1"
 
 
 def main():
     r1 = robotComms(console_logging=True, run_remote_url=True)
-    result = r1.get_core_system_capabilities()
-    print(f"Code: {result.status_code} | Log: {result.data}")
+    power = r1.system.get_power_status()
+    print(power)
+    result = r1.system.set_power("wakeup")
+    print(result)
+    power = r1.system.get_power_status()
+    print(power)
 
 
 if __name__ == "__main__":
