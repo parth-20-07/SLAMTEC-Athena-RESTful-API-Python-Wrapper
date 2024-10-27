@@ -157,7 +157,7 @@ class robotConnection:
                 sleep(self.__RETRY_TIME_SECONDS)
 
         self.__LOGGER.ERROR(
-            "Connection Check Failure at {ip_addr}. Check the IP Address and Robot Power State Again!"
+            f"Connection Check Failure at {ip_addr}. Check the IP Address and Robot Power State Again!"
         )
         return False
 
