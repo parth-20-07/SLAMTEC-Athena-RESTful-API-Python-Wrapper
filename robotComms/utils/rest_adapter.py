@@ -14,7 +14,15 @@ __name__ = "restAdapter"
 
 # Custom Packages
 from utils.logger import systemLogger
-from utils.results import Result
+from utils.results import (
+    Response_Type,
+    DictType,
+    StrType,
+    list_Result,
+    dict_Result,
+    str_Result,
+    combined_Result,
+)
 
 # Imported Packages
 import requests  # https://requests.readthedocs.io/en/latest/user/quickstart/#
@@ -26,13 +34,13 @@ class restAdapter:
     def __init__(
         self,
         logger_instance: typing.Optional[systemLogger] = None,
-        timeout: float = 1.0,
+        timeout: float = 2.0,
     ) -> None:
         """
 
         Args:
             logger_instance: Instance of systemLogger. If not provided, initiates with log name 'restApi_logger'
-            timeout: API Request Timeout. Default = 1s
+            timeout: API Request Timeout. Default = 2s
         """
         self._LOGGER: systemLogger = logger_instance or systemLogger(
             logger_name="restApi_logger",
@@ -44,25 +52,60 @@ class restAdapter:
     def get(
         self,
         full_endpoint: str,
-        params: typing.Optional[typing.Dict[str, str]] = None,
-    ) -> Result:
+        response_type: Response_Type,
+        dict_params: typing.Optional[DictType] = None,
+        str_params: typing.Optional[StrType] = None,
+    ) -> combined_Result:
         """
         Generate GET Request
 
         Args:
             full_endpoint: Complete endpoint of format: http://{ip}:{port}/{endpoint}
-            params: Dictionary of Parameters to Fetch Data
+            params: Dictionary of Parameters to Fetch Data or String Parameter
 
         Returns:
             Result: Status Code with message
         """
-        return self.__do(http_method="GET", endpoint=full_endpoint, ep_params=params)
+        return self.__do(
+            http_method="GET",
+            endpoint=full_endpoint,
+            response_type=response_type,
+            json_params=dict_params,
+            str_param=str_params,
+        )
+
+    def put(
+        self,
+        full_endpoint: str,
+        response_type: Response_Type,
+        dict_params: typing.Optional[DictType] = None,
+        str_params: typing.Optional[StrType] = None,
+    ) -> combined_Result:
+        """
+        Generate PUT Request
+
+        Args:
+            full_endpoint: Complete endpoint of format: http://{ip}:{port}/{endpoint}
+            params: Dictionary of Parameters to Put Data or String Parameter
+
+        Returns:
+            Result: Status Code with message
+        """
+        return self.__do(
+            http_method="PUT",
+            endpoint=full_endpoint,
+            response_type=response_type,
+            json_params=dict_params,
+            str_param=str_params,
+        )
 
     def post(
         self,
         full_endpoint: str,
-        params: typing.Optional[typing.Dict[str, typing.Any]] = None,
-    ) -> Result:
+        response_type: Response_Type,
+        dict_params: typing.Optional[DictType] = None,
+        str_params: typing.Optional[StrType] = None,
+    ) -> combined_Result:
         """
         Generate POST Request
 
@@ -73,15 +116,22 @@ class restAdapter:
         Returns:
             Result: Status Code with message
         """
-        return self.__do(http_method="POST", endpoint=full_endpoint, ep_params=params)
+        return self.__do(
+            http_method="POST",
+            endpoint=full_endpoint,
+            response_type=response_type,
+            json_params=dict_params,
+            str_param=str_params,
+        )
 
     def __do(
         self,
         http_method: str,
         endpoint: str,
-        ep_params: typing.Optional[typing.Dict[str, str]] = None,
-        data: typing.Optional[typing.Dict[str, str]] = None,
-    ) -> Result:
+        response_type: Response_Type,
+        json_params: typing.Optional[DictType] = None,
+        str_param: typing.Optional[StrType] = None,
+    ) -> combined_Result:
         """
 
         Perform HTTP Requests
@@ -99,24 +149,47 @@ class restAdapter:
             Result: Status Code with message
 
         """
+        if str_param != "":
+            str_param = f"param={str_param}"
+
         try:
-            self._LOGGER.INFO(f"{http_method} => {endpoint} | Payload: {ep_params}")
             response: requests.Response = requests.request(
                 method=http_method,
                 url=endpoint,
-                params=ep_params,
+                json=json_params,
+                params=str_param,
                 timeout=self._REQUEST_TIMEOUT,
             )
+            response.raise_for_status()  # Raises an HTTPError for bad responses (4xx or 5xx)
+            self._LOGGER.INFO(f"{http_method} => {response.url}")
 
         except requests.exceptions.Timeout as e:
             self._LOGGER.ERROR(f"[ERROR] => 408: Request Timeout | {e}")
-            return Result(408)
+            self._LOGGER.INFO(f"Error {http_method} => {e.request.url}")
+            if response_type == Response_Type.LIST_JSON:
+                return list_Result(408)
+            elif response_type == Response_Type.JSON:
+                return dict_Result(408)
+            elif response_type == Response_Type.STR:
+                return str_Result(408)
 
         status_code: int = response.status_code
-        data_out: typing.List[typing.Dict[str, str]] = response.json()
+        if response_type == Response_Type.LIST_JSON:
+            data_out = response.json()
+        elif response_type == Response_Type.JSON:
+            data_out = response.json()
+        elif response_type == Response_Type.STR:
+            data_out = response.json()
 
         if status_code == requests.codes.ok:
-            self._LOGGER.INFO(f"[OK] => {status_code} : {json.dumps(data_out, indent =2)}")
-            return Result(status_code, data_out)
+            if isinstance(data_out, list):
+                self._LOGGER.INFO(f"[OK] => {status_code} : {json.dumps(data_out, indent =2)}")
+                return list_Result(status_code, data_out)
+            elif isinstance(data_out, dict):
+                self._LOGGER.INFO(f"[OK] => {status_code} : {json.dumps(data_out, indent =2)}")
+                return dict_Result(status_code, data_out)
+            elif isinstance(data_out, str):
+                self._LOGGER.INFO(f"[OK] => {status_code} : {data_out}")
+                return str_Result(status_code, data_out)
 
         raise Exception(f"{status_code}: {response.reason}")
