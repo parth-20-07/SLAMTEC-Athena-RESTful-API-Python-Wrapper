@@ -1,12 +1,10 @@
 from utils.rest_adapter import restAdapter
 from utils.logger import systemLogger
 from utils.results import (
-    dict_Result,
     combined_Result,
     Response_Type,
     ListDictType,
     DictType,
-    StrType,
     CombinedType,
 )
 
