@@ -3,6 +3,9 @@ from utils.logger import systemLogger
 from utils.connection import robotConnection
 from api_classes.system import system
 
+import json
+from pathlib import Path
+
 # TODO: Project Plan
 # [x] Setup a Switching Interface for URL Connection
 # [x] Setup an Endpoint Indexer so we dont make URL at everycall
@@ -27,6 +30,7 @@ class robotComms:
             log_file_path="logs",
             enable_console_logging=console_logging,
         )
+        self.__load_old_ip_addresses()
         self.__ROBOT_CONNETION: robotConnection = robotConnection(self.__LOGGER)
 
         if not run_remote_url:
@@ -46,19 +50,22 @@ class robotComms:
             self.__LOGGER.INFO("Communication Instantiated via Remote URL")
             if remote_url == "":
                 self.__LOGGER.CRITICAL("You have not provided any Remote URL")
-                self.__LOGGER.CRITICAL(
-                    f"Do You want to use the saved url: {self.__SAVED_REMOTE_URL} ?"
-                )
-                confirmation: str = input("(y/n)")
-                if confirmation != "y":
-                    self.__REMOTE_URL = self.set_new_url()
-                else:
-                    self.__REMOTE_URL = self.__SAVED_REMOTE_URL
+                if self.__REMOTE_URL != "":
+                    self.__LOGGER.CRITICAL(
+                        f"Do You want to use the saved url: {self.__REMOTE_URL} ?"
+                    )
+                    confirmation: str = input("(y/n)")
+                    if confirmation == "y":
+                        self.__CURRENT_URL = self.__REMOTE_URL
+
+            if self.__CURRENT_URL == "":
+                self.__REMOTE_URL = self.set_new_url()
                 self.__CURRENT_URL = self.__REMOTE_URL
-                self.__VALID_CONNECTION = self.__ROBOT_CONNETION.initialize_connection(
-                    ip_addr=self.__desantize_url(self.__CURRENT_URL),
-                    remote_connection=True,
-                )
+
+            self.__VALID_CONNECTION = self.__ROBOT_CONNETION.initialize_connection(
+                ip_addr=self.__desantize_url(self.__CURRENT_URL),
+                remote_connection=True,
+            )
 
             if self.__VALID_CONNECTION:
                 self.__LOGGER.INFO(
@@ -69,11 +76,15 @@ class robotComms:
 
         self.system = system(self.__CURRENT_URL, self.__API_VERSION_NUM, self.__LOGGER)
 
+    def __del__(self):
+        self.__save_ip_addresses()
+
+    ##############################################################################################################
     # Public Methods
+    ##############################################################################################################
     def set_new_url(self, new_url: str = "") -> str:
         # Get Input for Remote URL
         if new_url == "":
-            self.__LOGGER.INFO("URL Not Provided.")
             while new_url == "":
                 custom_url: str = input("Please Enter New URL: ")
                 custom_url = self.__santize_url(custom_url)
@@ -85,28 +96,8 @@ class robotComms:
                     new_url = custom_url
         else:
             new_url = self.__santize_url(new_url)
-        self.__LOGGER.INFO(f"URL Confirmed: {new_url}")
+            self.__LOGGER.INFO(f"URL Confirmed: {new_url}")
         return new_url
-
-    def __santize_url(self, url: str) -> str:
-        # Check for http in Remote URL
-        http_check: str = url[0:7]
-        if http_check != "http://":
-            url = "http://" + url
-        port_check: str = url[-5:]
-        if port_check[0] != ":":
-            url = url + ":1448"
-        return url
-
-    def __desantize_url(self, url: str) -> str:
-        # Check for http in Remote URL
-        http_check: str = url[0:7]
-        if http_check == "http://":
-            url = url[7:]
-        port_check: str = url[-5:]
-        if port_check[0] == ":":
-            url = url[0:-5]
-        return url
 
     def get_local_url(self) -> str:
         return self.__LOCAL_URL
@@ -141,22 +132,67 @@ class robotComms:
         else:
             self.set_remote_url()
 
+    ##############################################################################################################
+    # Private Methods
+    ##############################################################################################################
+
+    def __load_old_ip_addresses(self) -> None:
+        self.__LOGGER.INFO("Loading Old Remote and Local IP Addresses")
+        if Path("ip.json").is_file():
+            ip_addr = json.load(open("ip.json"))
+            self.__LOCAL_URL = ip_addr["local"]
+            self.__REMOTE_URL = ip_addr["remote"]
+            self.__LOGGER.INFO(f"Local URL: {self.__LOCAL_URL}")
+            self.__LOGGER.INFO(f"Remote URL: {self.__REMOTE_URL}")
+        else:
+            self.__LOGGER.INFO("IP Log File Does Not Exist!")
+
+    def __save_ip_addresses(self) -> None:
+        self.__LOGGER.INFO("Saving Current Remote and Local IP Addresses")
+        ip_addr = {"local": self.__LOCAL_URL, "remote": self.__REMOTE_URL}
+        json.dump(ip_addr, open("ip.json", "w"))
+
+    def __santize_url(self, url: str) -> str:
+        # Check for http in Remote URL
+        http_check: str = url[0:7]
+        if http_check != "http://":
+            url = "http://" + url
+        port_check: str = url[-5:]
+        if port_check[0] != ":":
+            url = url + ":1448"
+        return url
+
+    def __desantize_url(self, url: str) -> str:
+        # Check for http in Remote URL
+        http_check: str = url[0:7]
+        if http_check == "http://":
+            url = url[7:]
+        port_check: str = url[-5:]
+        print(port_check)
+        if port_check != "" and port_check[0] == ":":
+            url = url[0:-5]
+        return url
+
+    ##############################################################################################################
     # Class Variables
+    ##############################################################################################################
+
     __VALID_CONNECTION: bool = False
-    __LOCAL_URL: str = "http://192.168.11.1:1448"
-    __SAVED_REMOTE_URL: str = "http://10.168.1.101:1448"
+    __LOCAL_URL: str = "192.168.11.1"
     __REMOTE_URL: str = ""
     __API_VERSION_NUM: str = "v1"
+    __CURRENT_URL: str = ""
 
 
 def main():
     r1 = robotComms(console_logging=True, run_remote_url=True)
+    cap = r1.system.get_capabilities()
+    print(cap)
     power = r1.system.get_power_status()
     print(power)
-    result = r1.system.set_power("wakeup")
-    print(result)
-    power = r1.system.get_power_status()
-    print(power)
+    print(r1.system.get_system_parameters("max_s"))
+    print(r1.system.get_system_parameters("max_w"))
+    print(r1.system.get_system_parameters("dock"))
 
 
 if __name__ == "__main__":
