@@ -333,7 +333,7 @@ class system:
         else:
             return False
 
-    def get_network_status(self) -> typing.Dict[str, typing.Any]:
+    def get_network_status(self) -> DictType:
         """
         Get the robot's current network status
 
@@ -352,6 +352,66 @@ class system:
         """
         response: combined_Result = self.__REST_ADAPTER.get(
             full_endpoint=f"{self.__IP_ADDR}/{self.__API_TAG}/{self.__API_VERSION}/network/status",
+            response_type=Response_Type.JSON,
+        )
+
+        result: CombinedType = response.data
+        if isinstance(result, dict):
+            return result
+        else:
+            return {}
+
+    def get_raw_adc_imu_value(self) -> DictType:
+        """
+        Get the ADC raw value of the robot IMU
+
+        Returns:
+            Example:
+                {
+                    "acc_x": 0,
+                    "acc_y": 0,
+                    "acc_z": 0,
+                    "gyro_x": 0,
+                    "gyro_y": 0,
+                    "gyro_z": 0,
+                    "comp_x": 0,
+                    "comp_y": 0,
+                    "comp_z": 0,
+                    "timestamp": 0
+                }
+        """
+        response: combined_Result = self.__REST_ADAPTER.get(
+            full_endpoint=f"{self.__IP_ADDR}/{self.__API_TAG}/{self.__API_VERSION}/rawadcimu",
+            response_type=Response_Type.JSON,
+        )
+
+        result: CombinedType = response.data
+        if isinstance(result, dict):
+            return result
+        else:
+            return {}
+
+    def get_raw_calculated_imu_value(self) -> DictType:
+        """
+        Get the raw value of the robot IMU
+
+        Returns:
+            Example:
+                {
+                    "acc_x": 0,
+                    "acc_y": 0,
+                    "acc_z": 0,
+                    "gyro_x": 0,
+                    "gyro_y": 0,
+                    "gyro_z": 0,
+                    "comp_x": 0,
+                    "comp_y": 0,
+                    "comp_z": 0,
+                    "timestamp": 0
+                }
+        """
+        response: combined_Result = self.__REST_ADAPTER.get(
+            full_endpoint=f"{self.__IP_ADDR}/{self.__API_TAG}/{self.__API_VERSION}/rawimu",
             response_type=Response_Type.JSON,
         )
 

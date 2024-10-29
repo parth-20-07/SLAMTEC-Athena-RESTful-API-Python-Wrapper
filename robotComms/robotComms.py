@@ -186,13 +186,7 @@ class robotComms:
 
 def main():
     r1 = robotComms(console_logging=True, run_remote_url=True)
-    cap = r1.system.get_capabilities()
-    print(cap)
-    power = r1.system.get_power_status()
-    print(power)
-    print(r1.system.get_system_parameters("max_s"))
-    print(r1.system.get_system_parameters("max_w"))
-    print(r1.system.get_system_parameters("dock"))
+    print(r1.system.get_capabilities())
 
 
 if __name__ == "__main__":
