@@ -33,7 +33,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.ruff]
 target-version = "py38"
-src = ["src"]  # for ruff isort
+src = ["robotComms"]  # for ruff isort
 extend-exclude = [
   "pyproject.toml",
 ]
