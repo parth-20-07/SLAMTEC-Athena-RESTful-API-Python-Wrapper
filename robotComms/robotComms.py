@@ -205,6 +205,7 @@ def main():
     print(r1.system.get_network_status())
     print(r1.system.get_raw_adc_imu_value())
     print(r1.system.get_raw_calculated_imu_value())
+    print(r1.system.set_power_status("hibernate"))
 
 
 if __name__ == "__main__":

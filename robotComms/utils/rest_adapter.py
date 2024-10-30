@@ -27,7 +27,7 @@ from utils.results import (
 
 # Imported Packages
 import requests  # https://requests.readthedocs.io/en/latest/user/quickstart/#
-from requests.exceptions import Timeout, HTTPError
+from requests.exceptions import Timeout, HTTPError, JSONDecodeError
 import typing
 import json
 
@@ -174,7 +174,7 @@ class restAdapter:
 
         except (Timeout, HTTPError) as e:
             self._LOGGER.ERROR(f"[ERROR] => 408: Request Timeout | {e}")
-            self._LOGGER.INFO(f"Error Requst {http_method} => {e.request}")
+            self._LOGGER.INFO(f"Error Request {http_method} => {e.request}")
             if response_type == Response_Type.LIST_JSON:
                 return list_Result(408)
             elif response_type == Response_Type.JSON:
@@ -190,7 +190,12 @@ class restAdapter:
             or response_type == Response_Type.JSON
             or response_type == Response_Type.STR
         ):
-            data_out = response.json()
+            try:
+                data_out = response.json()
+            except JSONDecodeError as e:
+                self._LOGGER.ERROR(f"[ERROR] => {status_code}: Decode Error | {e}")
+                self._LOGGER.INFO(f"Error Request {http_method} => {e.request}")
+                data_out = {}
 
             if isinstance(data_out, list):
                 self._LOGGER.INFO(
