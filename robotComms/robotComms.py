@@ -1,7 +1,7 @@
 # Utils Dependencies
 from utils.logger import systemLogger
 from utils.connection import robotConnection
-from api_classes.system import system
+from api_classes import system, slam
 
 import json
 from pathlib import Path
@@ -75,6 +75,7 @@ class robotComms:
                 self.set_remote_url()
 
         self.system = system(self.__CURRENT_URL, self.__API_VERSION_NUM, self.__LOGGER)
+        self.slam = slam(self.__CURRENT_URL, self.__API_VERSION_NUM, self.__LOGGER)
 
     def __del__(self):
         self.__save_ip_addresses()
@@ -186,7 +187,7 @@ class robotComms:
 
 def main():
     r1 = robotComms(console_logging=True, run_remote_url=True)
-    print(r1.system.get_capabilities())
+    print(r1.system.set_power_status("hibernate"))
 
 
 if __name__ == "__main__":

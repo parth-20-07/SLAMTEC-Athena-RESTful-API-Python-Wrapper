@@ -24,7 +24,7 @@ import os
 
 
 class robotConnection:
-    def __init__(self, logger: systemLogger, max_attempts: int = 5) -> None:
+    def __init__(self, logger: typing.Optional[systemLogger] = None, max_attempts: int = 5) -> None:
         """
         Initialize Connection Module
 
@@ -33,7 +33,11 @@ class robotConnection:
             max_attempts: Max number of Attempts to try pinging. Default: 5
         """
         self.__MAX_CONNECTION_ATTEMPTS = max_attempts
-        self.__LOGGER: systemLogger = logger
+        self.__LOGGER: systemLogger = logger or systemLogger(
+            logger_name="docker_logger",
+            log_file_path="logs",
+            enable_console_logging=True,
+        )
 
     def __del__(self):
         """
@@ -94,17 +98,11 @@ class robotConnection:
             exit()
 
         # Check if Docker Container Exists
-        verify_container_exist: bool | Container = self.__check_docker_connection(
-            docker_client=self.__CLIENT, container_name=self.__VPN_CONTAINER_NAME
-        )
+        verify_container_exist: bool | Container = self.__check_docker_connection()
 
         # If container does not exists, make container
         if not isinstance(verify_container_exist, Container):
-            verify_container_exist: bool | Container = self.__make_docker_container(
-                docker_client=self.__CLIENT,
-                container_name=self.__VPN_CONTAINER_NAME,
-                docker_image=self.__VPN_IMAGE_NAME,
-            )
+            verify_container_exist: bool | Container = self.__make_docker_container()
 
         # Start Container if it already exists or we were able to make new one
         if isinstance(verify_container_exist, Container):
@@ -161,15 +159,9 @@ class robotConnection:
         )
         return False
 
-    def __check_docker_connection(
-        self, docker_client: docker.DockerClient, container_name: str
-    ) -> bool | Container:
+    def __check_docker_connection(self) -> bool | Container:
         """
         Calls the Docker Client in Background to check if the docker container exists by name.
-
-        Args:
-            docker_client: Reference to Docker Client
-            container_name: name of Docker Container
 
         Returns:
             status:
@@ -177,20 +169,20 @@ class robotConnection:
                 False => Container Does not Exists
 
         """
-        self.__LOGGER.INFO(f"Searching for Docker Container: {container_name}")
-        container_list: typing.List[Container] = docker_client.containers.list(since=container_name)
+        self.__LOGGER.INFO(f"Searching for Docker Container: {self.__VPN_CONTAINER_NAME}")
+        container_list: typing.List[Container] = self.__CLIENT.containers.list(
+            all=True, since=self.__VPN_CONTAINER_NAME
+        )
         if not container_list:
-            self.__LOGGER.WARNING(f"Container {container_name} Not Found!!")
+            self.__LOGGER.WARNING(f"Container {self.__VPN_CONTAINER_NAME} Not Found!!")
             return False
         else:
-            self.__LOGGER.INFO(f"Container {container_name} Found!!")
+            self.__LOGGER.INFO(f"Container {self.__VPN_CONTAINER_NAME} Found!!")
 
         container: Container = container_list[0]
         return container
 
-    def __make_docker_container(
-        self, docker_client: docker.DockerClient, container_name: str, docker_image: str
-    ) -> bool | Container:
+    def __make_docker_container(self) -> bool | Container:
         """
 
         Initialize the Docker Container using the ENV Variables:
@@ -199,17 +191,12 @@ class robotConnection:
 
         Verify the container exists
 
-        Args:
-            docker_client: Reference to the Docker Client
-            container_name: Name of Container
-            docker_image: Image of Container
-
         Returns:
             container_id: Reference to container ID
 
         """
         self.__LOGGER.INFO(
-            f"Initializing Docker Container with:\n\t Name: {container_name}\n\t Image: {docker_image}"
+            f"Initializing Docker Container with:\n\t Name: {self.__VPN_CONTAINER_NAME}\n\t Image: {self.__VPN_IMAGE_NAME}"
         )
         username: str | None = os.environ.get("PGY_UNM")
         password: str | None = os.environ.get("PGY_PWD")
@@ -219,18 +206,18 @@ class robotConnection:
             )
             exit()
 
-        docker_client.containers.run(
-            image=docker_image,
+        self.__CLIENT.containers.run(
+            image=self.__VPN_IMAGE_NAME,
             cap_add=["NET_ADMIN", "SYS_ADMIN"],
             devices=["/dev/net/tun"],
             network_mode="host",
             environment=[f"PGY_USERNAME={username}", f"PGY_PASSWORD={password}"],
-            name=container_name,
+            name=self.__VPN_CONTAINER_NAME,
             detach=True,
         )
         self.__LOGGER.INFO("Docker Initialization Complete. Verify Build!")
 
-        container: bool | Container = self.__check_docker_connection(docker_client, container_name)
+        container: bool | Container = self.__check_docker_connection()
 
         if isinstance(container, Container):
             self.__LOGGER.INFO(f"Docker Initialization Success at ID: {container.id}")

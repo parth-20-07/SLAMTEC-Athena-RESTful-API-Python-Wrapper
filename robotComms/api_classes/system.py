@@ -122,7 +122,7 @@ class system:
             self.__LOGGER.INFO("Setting Hibernating Mode")
             response = self.__REST_ADAPTER.post(
                 full_endpoint=f"{self.__IP_ADDR}/{self.__API_TAG}/{self.__API_VERSION}/power/:hibernate",
-                response_type=Response_Type.JSON,
+                response_type=Response_Type.EMPTY,
             )
             if response.status_code == 200:
                 return True
@@ -133,7 +133,7 @@ class system:
             self.__LOGGER.INFO("Awakening Machine")
             response = self.__REST_ADAPTER.post(
                 full_endpoint=f"{self.__IP_ADDR}/{self.__API_TAG}/{self.__API_VERSION}/power/:wakeup",
-                response_type=Response_Type.JSON,
+                response_type=Response_Type.EMPTY,
             )
             if response.status_code == 200:
                 return True
