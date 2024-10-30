@@ -37,6 +37,7 @@ class system:
 
 
         """
+        self.__LOGGER.INFO("Fetch Robot Capabilities")
         response: combined_Result = self.__REST_ADAPTER.get(
             full_endpoint=f"{self.__IP_ADDR}/{self.__API_TAG}/{self.__API_VERSION}/capabilities",
             response_type=Response_Type.LIST_JSON,
@@ -64,6 +65,7 @@ class system:
             }
 
         """
+        self.__LOGGER.INFO("Fetch Robot Info")
         response: combined_Result = self.__REST_ADAPTER.get(
             full_endpoint=f"{self.__IP_ADDR}/{self.__API_TAG}/{self.__API_VERSION}/power/status",
             response_type=Response_Type.JSON,
@@ -173,6 +175,7 @@ class system:
                     "softwareVersion": "3.6.1-rtm+20210807"
                 }
         """
+        self.__LOGGER.INFO("Fetch Robot Information")
         response: combined_Result = self.__REST_ADAPTER.get(
             full_endpoint=f"{self.__IP_ADDR}/{self.__API_TAG}/{self.__API_VERSION}/robot/info",
             response_type=Response_Type.JSON,
@@ -205,6 +208,7 @@ class system:
                     ]
                 }
         """
+        self.__LOGGER.INFO("Fetch Robot Health")
         response: combined_Result = self.__REST_ADAPTER.get(
             full_endpoint=f"{self.__IP_ADDR}/{self.__API_TAG}/{self.__API_VERSION}/robot/health",
             response_type=Response_Type.JSON,
@@ -240,6 +244,7 @@ class system:
                     ]
                 }
         """
+        self.__LOGGER.INFO("Fetch Robot LIDAR Laser Scan")
         response: combined_Result = self.__REST_ADAPTER.get(
             full_endpoint=f"{self.__IP_ADDR}/{self.__API_TAG}/{self.__API_VERSION}/laserscan",
             response_type=Response_Type.JSON,
@@ -272,10 +277,13 @@ class system:
 
         """
         if param == "max_s":
+            self.__LOGGER.INFO("Fetch Max Moving Speed")
             request_param: str = "base.max_moving_speed"
         elif param == "max_w":
+            self.__LOGGER.INFO("Fetch Max Angular Velocity")
             request_param: str = "base.max_angular_speed"
         elif param == "dock":
+            self.__LOGGER.INFO("Fetch Docking Strategy")
             request_param: str = "docking.docked_register_strategy"
         else:
             self.__LOGGER.WARNING("Incorrect System Param Requested!")
@@ -317,6 +325,7 @@ class system:
             self.__LOGGER.WARNING("Max Speed Cannot be Less than zero!")
             return False
 
+        self.__LOGGER.INFO("Changing Robot Max Speed")
         request_param: typing.Dict[str, typing.Any] = {
             "param": "base.max_moving_speed",
             "value": str(max_speed),
@@ -349,6 +358,7 @@ class system:
             self.__LOGGER.WARNING("Max Angular Velocity Cannot be Less than zero!")
             return False
 
+        self.__LOGGER.INFO("Changing Robot Max Angular Velocity")
         request_param: typing.Dict[str, typing.Any] = {
             "param": "base.max_angular_speed",
             "value": str(max_angular_velocity),
@@ -379,7 +389,12 @@ class system:
             - True => Request success.
             - False => Request Failure
         """
-        value: str = "on" if engage_brake else "off"
+        if engage_brake:
+            self.__LOGGER.INFO("Engage Emergency Brake")
+            value: str = "on"
+        else:
+            self.__LOGGER.INFO("Disengage Emergency Brake")
+            value: str = "off"
         request_param: typing.Dict[str, typing.Any] = {
             "param": "base.emergency_stop",
             "value": value,
@@ -410,7 +425,12 @@ class system:
             - True => Request success.
             - False => Request Failure
         """
-        value: str = "on" if engage_brake else "off"
+        if engage_brake:
+            self.__LOGGER.INFO("Release Parking Brake")
+            value: str = "on"
+        else:
+            self.__LOGGER.INFO("Engage Parking Brake")
+            value: str = "off"
         request_param: typing.Dict[str, typing.Any] = {
             "param": "base.brake_release",
             "value": value,
@@ -444,6 +464,7 @@ class system:
                     }
                 }
         """
+        self.__LOGGER.INFO("Fetch Robot Network Status")
         response: combined_Result = self.__REST_ADAPTER.get(
             full_endpoint=f"{self.__IP_ADDR}/{self.__API_TAG}/{self.__API_VERSION}/network/status",
             response_type=Response_Type.JSON,
@@ -474,6 +495,7 @@ class system:
                     "timestamp": 0
                 }
         """
+        self.__LOGGER.INFO("Fetch Robot Raw ADC IMU Value")
         response: combined_Result = self.__REST_ADAPTER.get(
             full_endpoint=f"{self.__IP_ADDR}/{self.__API_TAG}/{self.__API_VERSION}/rawadcimu",
             response_type=Response_Type.JSON,
@@ -504,6 +526,7 @@ class system:
                     "timestamp": 0
                 }
         """
+        self.__LOGGER.INFO("Fetch Robot Raw Calculated IMU Value")
         response: combined_Result = self.__REST_ADAPTER.get(
             full_endpoint=f"{self.__IP_ADDR}/{self.__API_TAG}/{self.__API_VERSION}/rawimu",
             response_type=Response_Type.JSON,
