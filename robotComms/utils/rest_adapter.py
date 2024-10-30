@@ -154,10 +154,6 @@ class restAdapter:
             Result: Status Code with message
 
         """
-        header = {
-            "Content-Type": "application/json",
-            "accept": "application/json",
-        }
         if str_param is not None:
             param = f"param={str_param}"
         else:
@@ -198,14 +194,10 @@ class restAdapter:
                 data_out = {}
 
             if isinstance(data_out, list):
-                self._LOGGER.INFO(
-                    f"[OK] => {status_code} : {json.dumps(data_out, indent =2)}"
-                )
+                self._LOGGER.INFO(f"[OK] => {status_code} : {json.dumps(data_out, indent =2)}")
                 return list_Result(status_code, data_out)
             elif isinstance(data_out, dict):
-                self._LOGGER.INFO(
-                    f"[OK] => {status_code} : {json.dumps(data_out, indent =2)}"
-                )
+                self._LOGGER.INFO(f"[OK] => {status_code} : {json.dumps(data_out, indent =2)}")
                 return dict_Result(status_code, data_out)
             elif isinstance(data_out, str):
                 self._LOGGER.INFO(f"[OK] => {status_code} : {data_out}")

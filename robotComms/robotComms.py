@@ -114,9 +114,7 @@ class robotComms:
         )
 
         if self.__VALID_CONNECTION:
-            self.__LOGGER.INFO(
-                f"Communication Initiated in Local Network at: {self.__LOCAL_URL}"
-            )
+            self.__LOGGER.INFO(f"Communication Initiated in Local Network at: {self.__LOCAL_URL}")
         else:
             self.set_local_url()
 
@@ -131,9 +129,7 @@ class robotComms:
         )
 
         if self.__VALID_CONNECTION:
-            self.__LOGGER.INFO(
-                f"Communication Initiated in Remote Network at: {self.__REMOTE_URL}"
-            )
+            self.__LOGGER.INFO(f"Communication Initiated in Remote Network at: {self.__REMOTE_URL}")
         else:
             self.set_remote_url()
 

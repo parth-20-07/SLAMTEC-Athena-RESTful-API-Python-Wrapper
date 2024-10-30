@@ -14,6 +14,9 @@ format:
 	black robotComms
 	ruff check robotComms
 
+fix:
+	ruff check robotComms --unsafe-fixes --fix
+
 clean:
 	rm -rf $(VENV)
 	rm -rf dist
@@ -38,4 +41,4 @@ docker_clean:
 	docker rm $(VPN_CONTAINER)
 	docker rmi $(VPN_IMAGE)
 
-.PHONY: all setup run format clean docker_run docker_clean 
+.PHONY: all setup run format fix clean docker_run docker_clean 
