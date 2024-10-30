@@ -24,9 +24,7 @@ import os
 
 
 class robotConnection:
-    def __init__(
-        self, logger: typing.Optional[systemLogger] = None, max_attempts: int = 5
-    ) -> None:
+    def __init__(self, logger: typing.Optional[systemLogger] = None, max_attempts: int = 5) -> None:
         """
         Initialize Connection Module
 
@@ -52,9 +50,7 @@ class robotConnection:
             self.__CONTAINER.stop()
             self.__CLIENT.containers.prune()
 
-    def initialize_connection(
-        self, ip_addr: str, remote_connection: bool = False
-    ) -> bool:
+    def initialize_connection(self, ip_addr: str, remote_connection: bool = False) -> bool:
         """
         1. Initialize the Process for Robot Connection if via VPN
         2. Ping the Robot IP to verify connections
@@ -173,9 +169,7 @@ class robotConnection:
                 False => Container Does not Exists
 
         """
-        self.__LOGGER.INFO(
-            f"Searching for Docker Container: {self.__VPN_CONTAINER_NAME}"
-        )
+        self.__LOGGER.INFO(f"Searching for Docker Container: {self.__VPN_CONTAINER_NAME}")
         container_list: typing.List[Container] = self.__CLIENT.containers.list(
             all=True, since=self.__VPN_CONTAINER_NAME
         )
