@@ -114,7 +114,9 @@ class robotComms:
         )
 
         if self.__VALID_CONNECTION:
-            self.__LOGGER.INFO(f"Communication Initiated in Local Network at: {self.__LOCAL_URL}")
+            self.__LOGGER.INFO(
+                f"Communication Initiated in Local Network at: {self.__LOCAL_URL}"
+            )
         else:
             self.set_local_url()
 
@@ -129,7 +131,9 @@ class robotComms:
         )
 
         if self.__VALID_CONNECTION:
-            self.__LOGGER.INFO(f"Communication Initiated in Remote Network at: {self.__REMOTE_URL}")
+            self.__LOGGER.INFO(
+                f"Communication Initiated in Remote Network at: {self.__REMOTE_URL}"
+            )
         else:
             self.set_remote_url()
 
@@ -187,7 +191,7 @@ class robotComms:
 
 def main():
     r1 = robotComms(console_logging=True, run_remote_url=True)
-    print(r1.slam.get_localization_pose())
+    print(r1.system.set_power_status("hibernate"))
 
 
 if __name__ == "__main__":

@@ -21,6 +21,7 @@ from utils.results import (
     list_Result,
     dict_Result,
     str_Result,
+    empty_Result,
     combined_Result,
 )
 
@@ -165,31 +166,40 @@ class restAdapter:
 
         except requests.exceptions.Timeout as e:
             self._LOGGER.ERROR(f"[ERROR] => 408: Request Timeout | {e}")
-            self._LOGGER.INFO(f"Error {http_method} => {e.request.url}")
+            self._LOGGER.INFO(f"Error Requst {http_method} => {e.request}")
             if response_type == Response_Type.LIST_JSON:
                 return list_Result(408)
             elif response_type == Response_Type.JSON:
                 return dict_Result(408)
             elif response_type == Response_Type.STR:
                 return str_Result(408)
+            elif response_type == Response_Type.EMPTY:
+                return empty_Result(408)
 
         status_code: int = response.status_code
-        if response_type == Response_Type.LIST_JSON:
-            data_out = response.json()
-        elif response_type == Response_Type.JSON:
-            data_out = response.json()
-        elif response_type == Response_Type.STR:
+
+        if (
+            response_type == Response_Type.LIST_JSON
+            or response_type == Response_Type.JSON
+            or response_type == Response_Type.STR
+        ):
             data_out = response.json()
 
-        if status_code == requests.codes.ok:
             if isinstance(data_out, list):
-                self._LOGGER.INFO(f"[OK] => {status_code} : {json.dumps(data_out, indent =2)}")
+                self._LOGGER.INFO(
+                    f"[OK] => {status_code} : {json.dumps(data_out, indent =2)}"
+                )
                 return list_Result(status_code, data_out)
             elif isinstance(data_out, dict):
-                self._LOGGER.INFO(f"[OK] => {status_code} : {json.dumps(data_out, indent =2)}")
+                self._LOGGER.INFO(
+                    f"[OK] => {status_code} : {json.dumps(data_out, indent =2)}"
+                )
                 return dict_Result(status_code, data_out)
             elif isinstance(data_out, str):
                 self._LOGGER.INFO(f"[OK] => {status_code} : {data_out}")
                 return str_Result(status_code, data_out)
 
+        else:
+            self._LOGGER.INFO(f"[OK] => {status_code}")
+            return empty_Result(status_code)
         raise Exception(f"{status_code}: {response.reason}")
