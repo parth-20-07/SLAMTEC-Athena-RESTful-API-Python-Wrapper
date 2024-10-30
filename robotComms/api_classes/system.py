@@ -325,7 +325,101 @@ class system:
         response: combined_Result = self.__REST_ADAPTER.put(
             full_endpoint=f"{self.__IP_ADDR}/{self.__API_TAG}/{self.__API_VERSION}/parameter",
             response_type=Response_Type.JSON,
-            dict_params=request_param,
+            body_params=request_param,
+        )
+
+        if response.status_code == 200:
+            return True
+        else:
+            return False
+
+    def set_robot_max_angular_velocity(self, max_angular_velocity: float) -> bool:
+        """
+
+        Set Max Angular Velocity for Robot
+
+        Args:
+            max_angular_velocity: Max Angular Velocity in rad/s. Should be greater than 0.0
+
+        Returns:
+            - True => Speed Changed successfully.
+            - False => Speed Change Failure
+        """
+        if max_angular_velocity <= 0:
+            self.__LOGGER.WARNING("Max Angular Velocity Cannot be Less than zero!")
+            return False
+
+        request_param: typing.Dict[str, typing.Any] = {
+            "param": "base.max_angular_speed",
+            "value": str(max_angular_velocity),
+        }
+
+        response: combined_Result = self.__REST_ADAPTER.put(
+            full_endpoint=f"{self.__IP_ADDR}/{self.__API_TAG}/{self.__API_VERSION}/parameter",
+            response_type=Response_Type.JSON,
+            body_params=request_param,
+        )
+
+        if response.status_code == 200:
+            return True
+        else:
+            return False
+
+    def set_robot_emergency_brake(self, engage_brake: bool) -> bool:
+        """
+
+        Engage/Disengage Emergency Brake for Robot
+
+        Args:
+            engage_brake:
+                - True => Engage Emergency Brake
+                - False => Disengage Emergency Brake
+
+        Returns:
+            - True => Request success.
+            - False => Request Failure
+        """
+        value: str = "on" if engage_brake else "off"
+        request_param: typing.Dict[str, typing.Any] = {
+            "param": "base.emergency_stop",
+            "value": value,
+        }
+
+        response: combined_Result = self.__REST_ADAPTER.put(
+            full_endpoint=f"{self.__IP_ADDR}/{self.__API_TAG}/{self.__API_VERSION}/parameter",
+            response_type=Response_Type.JSON,
+            body_params=request_param,
+        )
+
+        if response.status_code == 200:
+            return True
+        else:
+            return False
+
+    def set_robot_brake_release(self, engage_brake: bool) -> bool:
+        """
+
+        Brake Release / Brake Recovery for Robot
+
+        Args:
+            engage_brake:
+                - True => Brake Release
+                - False => Brake Recovery
+
+        Returns:
+            - True => Request success.
+            - False => Request Failure
+        """
+        value: str = "on" if engage_brake else "off"
+        request_param: typing.Dict[str, typing.Any] = {
+            "param": "base.brake_release",
+            "value": value,
+        }
+
+        response: combined_Result = self.__REST_ADAPTER.put(
+            full_endpoint=f"{self.__IP_ADDR}/{self.__API_TAG}/{self.__API_VERSION}/parameter",
+            response_type=Response_Type.JSON,
+            body_params=request_param,
         )
 
         if response.status_code == 200:
