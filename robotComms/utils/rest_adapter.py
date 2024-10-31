@@ -17,6 +17,7 @@ from .logger import systemLogger
 from .results import (
     Response_Type,
     DictType,
+    ListDictType,
     StrType,
     list_Result,
     dict_Result,
@@ -82,7 +83,7 @@ class restAdapter:
         response_type: Response_Type,
         dict_params: typing.Optional[DictType] = None,
         str_params: typing.Optional[StrType] = None,
-        body_params: typing.Optional[DictType] = None,
+        body_params: typing.Optional[DictType | ListDictType] = None,
     ) -> combined_Result:
         """
         Generate PUT Request
@@ -109,6 +110,7 @@ class restAdapter:
         response_type: Response_Type,
         dict_params: typing.Optional[DictType] = None,
         str_params: typing.Optional[StrType] = None,
+        body_params: typing.Optional[DictType | ListDictType] = None,
     ) -> combined_Result:
         """
         Generate POST Request
@@ -126,6 +128,34 @@ class restAdapter:
             response_type=response_type,
             json_params=dict_params,
             str_param=str_params,
+            body=body_params,
+        )
+
+    def delete(
+        self,
+        full_endpoint: str,
+        response_type: Response_Type,
+        dict_params: typing.Optional[DictType] = None,
+        str_params: typing.Optional[StrType] = None,
+        body_params: typing.Optional[DictType | ListDictType] = None,
+    ) -> combined_Result:
+        """
+        Generate Delete Request
+
+        Args:
+            full_endpoint: Complete endpoint of format: http://{ip}:{port}/{endpoint}
+            params: Dictionary of Parameters to Delete Data
+
+        Returns:
+            Result: Status Code with message
+        """
+        return self.__do(
+            http_method="DELETE",
+            endpoint=full_endpoint,
+            response_type=response_type,
+            json_params=dict_params,
+            str_param=str_params,
+            body=body_params,
         )
 
     def __do(
@@ -135,7 +165,7 @@ class restAdapter:
         response_type: Response_Type,
         json_params: typing.Optional[DictType] = None,
         str_param: typing.Optional[StrType] = None,
-        body: typing.Optional[DictType] = None,
+        body: typing.Optional[DictType | ListDictType] = None,
     ) -> combined_Result:
         """
 
