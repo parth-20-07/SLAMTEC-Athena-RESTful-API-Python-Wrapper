@@ -12,7 +12,7 @@ If the Connection is Remote, the connection is made as follows:
 """
 
 # Custom Header
-from utils.logger import systemLogger
+from .logger import systemLogger
 
 # System Dependencies
 import subprocess

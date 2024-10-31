@@ -3,27 +3,31 @@ VENV := .venv
 VPN_IMAGE := crpi-orhk6a4lutw1gb13.cn-hangzhou.personal.cr.aliyuncs.com/bestoray/pgyvpn
 VPN_CONTAINER := pgy_vpn
 
+ENTRY:=main.py
+
+# Module Variables
+MODULE:=robotComms
+
 all: venv
 
 setup: pyproject.toml $(VENV)
 	poetry install
 
 run: $(VENV)
-	./$(VENV)/bin/python3 robotComms/robotComms.py
+	./$(VENV)/bin/python3 $(ENTRY)
 format:
-	black robotComms
-	ruff check robotComms
-
+	black $(MODULE)
+	ruff check $(MODULE)
 fix:
-	ruff check robotComms --unsafe-fixes --fix
+	ruff check $(MODULE) --unsafe-fixes --fix
 
 clean:
 	rm -rf $(VENV)
-	rm -rf dist
-	rm -rf .ruff_cache
-	rm -rf logs
 	find . -type f -name '*.pyc' -delete
 	find . -name '__pycache__' -ls -exec rm -rv {} +
+	find . -name '.ruff_cache' -ls -exec rm -rv {} +
+	find . -name 'logs' -ls -exec rm -rv {} +
+	find . -name 'dist' -ls -exec rm -rv {} +
 
 docker_run:
 	docker run -d \

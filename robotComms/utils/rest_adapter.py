@@ -13,8 +13,8 @@ Reference: https://www.pretzellogix.net/2021/12/08/step-2-write-a-low-level-rest
 __name__ = "restAdapter"
 
 # Custom Packages
-from utils.logger import systemLogger
-from utils.results import (
+from .logger import systemLogger
+from .results import (
     Response_Type,
     DictType,
     StrType,
