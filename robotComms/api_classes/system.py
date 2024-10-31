@@ -571,13 +571,13 @@ class system:
         """
 
         self.__LOGGER.INFO("Changing Robot Light Pattern")
-        if channel != "One" or "Two":
+        if channel not in ["One", "Two"]:
             self.__LOGGER.WARNING("Invalid Channel Selection")
             return False
-        if control_part != "Left" or "Right":
+        if control_part not in ["Left", "Right"]:
             self.__LOGGER.WARNING("Invalid Control Part")
             return False
-        if mode != "AlwaysBright" or "Bright" or "Blink" or "HorseLamp":
+        if mode not in ["AlwaysBright", "Bright", "Blink", "HorseLamp"]:
             self.__LOGGER.WARNING("Invalid LED Mode")
             return False
 
