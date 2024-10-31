@@ -1,10 +1,11 @@
 # Utils Dependencies
-from utils.logger import systemLogger
-from utils.connection import robotConnection
-from api_classes import system, slam
+from .utils.logger import systemLogger
+from .utils.connection import robotConnection
+from .api_classes import system, slam
 
 import json
 from pathlib import Path
+import typing
 
 # TODO: Project Plan
 # [x] Setup a Switching Interface for URL Connection
@@ -23,7 +24,7 @@ class robotComms:
         self,
         console_logging: bool = True,
         run_remote_url: bool = False,
-        remote_url: str = "",
+        remote_url: typing.Optional[str] = None,
     ) -> None:
         self.__LOGGER: systemLogger = systemLogger(
             logger_name="robotComms_logger",
@@ -41,22 +42,19 @@ class robotComms:
                 remote_connection=False,
             )
             if self.__VALID_CONNECTION:
+                self.__CURRENT_URL = self.__santize_url(self.__CURRENT_URL)
                 self.__LOGGER.INFO(
-                    f"Communication Initiated in Local Network at: {self.__LOCAL_URL}"
+                    f"Communication Initiated in Local Network at: {self.__CURRENT_URL}"
                 )
             else:
                 self.set_local_url()
         else:
             self.__LOGGER.INFO("Communication Instantiated via Remote URL")
-            if remote_url == "":
-                self.__LOGGER.CRITICAL("You have not provided any Remote URL")
-                if self.__REMOTE_URL != "":
-                    self.__LOGGER.CRITICAL(
-                        f"Do You want to use the saved url: {self.__REMOTE_URL} ?"
-                    )
-                    confirmation: str = input("(y/n)")
-                    if confirmation == "y":
-                        self.__CURRENT_URL = self.__REMOTE_URL
+
+            if remote_url is None:
+                self.__CURRENT_URL = self.__REMOTE_URL
+            else:
+                self.__CURRENT_URL = remote_url
 
             if self.__CURRENT_URL == "":
                 self.__REMOTE_URL = self.set_new_url()
@@ -68,8 +66,9 @@ class robotComms:
             )
 
             if self.__VALID_CONNECTION:
+                self.__CURRENT_URL = self.__santize_url(self.__CURRENT_URL)
                 self.__LOGGER.INFO(
-                    f"Communication Initiated in Remote Network at: {self.__REMOTE_URL}"
+                    f"Communication Initiated in Remote Network at: {self.__CURRENT_URL}"
                 )
             else:
                 self.set_remote_url()
@@ -169,7 +168,6 @@ class robotComms:
         if http_check == "http://":
             url = url[7:]
         port_check: str = url[-5:]
-        print(port_check)
         if port_check != "" and port_check[0] == ":":
             url = url[0:-5]
         return url
@@ -183,12 +181,3 @@ class robotComms:
     __REMOTE_URL: str = ""
     __API_VERSION_NUM: str = "v1"
     __CURRENT_URL: str = ""
-
-
-def main():
-    r1 = robotComms(console_logging=True, run_remote_url=True)
-    print(r1.system.set_power_status("hibernate"))
-
-
-if __name__ == "__main__":
-    main()
