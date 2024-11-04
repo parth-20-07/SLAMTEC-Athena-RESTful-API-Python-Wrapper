@@ -1,7 +1,7 @@
 # Utils Dependencies
 from .utils.logger import systemLogger
 from .utils.connection import robotConnection
-from .api_classes import system, artifact, slam
+from .api_classes import system, artifact, slam, motion
 
 import json
 from pathlib import Path
@@ -76,6 +76,7 @@ class robotComms:
         self.system = system(self.__CURRENT_URL, self.__API_VERSION_NUM, self.__LOGGER)
         self.artifact = artifact(self.__CURRENT_URL, self.__API_VERSION_NUM, self.__LOGGER)
         self.slam = slam(self.__CURRENT_URL, self.__API_VERSION_NUM, self.__LOGGER)
+        self.motion = motion(self.__CURRENT_URL, self.__API_VERSION_NUM, self.__LOGGER)
 
     def __del__(self):
         self.__save_ip_addresses()
