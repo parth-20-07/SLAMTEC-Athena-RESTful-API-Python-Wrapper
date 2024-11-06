@@ -49,10 +49,11 @@ class motion:
         result: CombinedType = response.data
         return result
 
-    def get_current_action(
-        self,
-    ) -> DictType:
-        """Get the current behavior
+    def get_action(self, id: typing.Optional[str] = None) -> DictType:
+        """Get the action behavior behavior
+
+        Args:
+            id: You can query the status of the last 20 actions. If state.status is 4, it means the action has ended. In this case, the success or failure can be determined by result. (Default: None => Returns current Actions)
 
         Returns:
             {
@@ -66,12 +67,87 @@ class motion:
                         }
             }
         """
+
+        if id is not None:
+            endpoint = f"actions/{id}"
+        else:
+            endpoint = "actions/:current"
         response: combined_Result = self.__REST_ADAPTER.get(
-            full_endpoint=f"{self.__IP_ADDR}/{self.__API_TAG}/{self.__API_VERSION}/actions/:current",
+            full_endpoint=f"{self.__IP_ADDR}/{self.__API_TAG}/{self.__API_VERSION}/{endpoint}",
             response_type=Response_Type.LIST_JSON,
         )
         result: CombinedType = response.data
         return result
+
+    def get_entity(self, entity: str) -> DictType:
+        """Get the action behavior behavior
+
+        Args:
+            entity:
+                - "path": The remaining path points of the current Action
+                - "milestones": The remaining target points of the current Action
+                - "speed": Get the current speed of the robot
+                - "time": Get the remaining movement time of the robot to the destination (estimated value)
+                - "strategies": The motion strategy is a combination of a series of internal parameters of Slamware, involving various aspects such as motion speed and obstacle avoidance behavior. Different strategies can be applied to different scenarios. In general, the default strategy can be used.
+                - "curr_strat": Get the current motion strategy
+        Returns:
+            Example:
+                entity == "path":
+                    {
+                            "path_points": [
+                                [
+                                    0,
+                                    0
+                                    ]
+                                ]
+                    }
+                entity == "milestones":
+                    {
+                            "path_points": [
+                                [
+                                    0,
+                                    0
+                                    ]
+                                ]
+                    }
+                entity == "speed":
+                    {
+                            "vx": 0,
+                            "vy": 0,
+                            "omega": 0
+                    }
+                entity == "time":
+                    0
+                entity == "strategies":
+                    [
+                            "default"
+                    ]
+                entity == "curr_strat":
+                    string
+
+        """
+
+        if entity not in [
+            "path",
+            "milestones",
+            "speed",
+            "time",
+            "strategies",
+            "curr_strat",
+        ]:
+            self.__LOGGER.ERROR("Invalid Entity Requested")
+            return {}
+        else:
+            if entity == "curr_strat":
+                r_type = Response_Type.STR
+                entity = "strategies/:current"
+            else:
+                r_type = Response_Type.JSON
+        response: combined_Result = self.__REST_ADAPTER.get(
+            full_endpoint=f"{self.__IP_ADDR}/{self.__API_TAG}/{self.__API_VERSION}/{entity}",
+            response_type=r_type,
+        )
+        return response.data
 
     ##############################################################################################################
     # Setters
@@ -145,3 +221,62 @@ class motion:
             return response.data
         else:
             return {}
+
+    def set_search_path(self, param: DictType):
+        """Search for the best path from the robot to the target point
+
+        Args:
+            param: Setting Search Path
+                Example:
+                    {
+                            "target": {
+                                "x": 0,
+                                "y": 0
+                                },
+                            "timeout": 0
+                    }
+
+        Returns:
+            Success =>
+                {
+                    "path_points": [
+                        [
+                            0,
+                            0
+                            ]
+                        ]
+                }
+            Failure => {}
+        """
+        response: combined_Result = self.__REST_ADAPTER.post(
+            full_endpoint=f"{self.__IP_ADDR}/{self.__API_TAG}/{self.__API_VERSION}/actions/:search_path",
+            response_type=Response_Type.JSON,
+            body_params=param,
+        )
+
+        if response.status_code == 200:
+            return response.data
+        else:
+            return {}
+
+    def set_movement_strategy(self, strategy: str) -> bool:
+        """Setting the Movement Strategy
+
+        Args:
+            strategy: String
+
+        Returns:
+            - True => Set Success
+            - False => Set Failure
+        """
+        param = {"strategy": strategy}
+        response: combined_Result = self.__REST_ADAPTER.post(
+            full_endpoint=f"{self.__IP_ADDR}/{self.__API_TAG}/{self.__API_VERSION}/actions/:search_path",
+            response_type=Response_Type.STR,
+            body_params=param,
+        )
+
+        if response.status_code == 200:
+            return True
+        else:
+            return False
