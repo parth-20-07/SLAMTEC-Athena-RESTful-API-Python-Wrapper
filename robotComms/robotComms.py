@@ -1,7 +1,7 @@
 # Utils Dependencies
 from .utils.logger import systemLogger
 from .utils.connection import robotConnection
-from .api_classes import system, artifact, slam, motion
+from .api_classes import system, artifact, slam, motion, statistics
 
 import json
 from pathlib import Path
@@ -74,9 +74,14 @@ class robotComms:
                 self.set_remote_url()
 
         self.system = system(self.__CURRENT_URL, self.__API_VERSION_NUM, self.__LOGGER)
-        self.artifact = artifact(self.__CURRENT_URL, self.__API_VERSION_NUM, self.__LOGGER)
+        self.artifact = artifact(
+            self.__CURRENT_URL, self.__API_VERSION_NUM, self.__LOGGER
+        )
         self.slam = slam(self.__CURRENT_URL, self.__API_VERSION_NUM, self.__LOGGER)
         self.motion = motion(self.__CURRENT_URL, self.__API_VERSION_NUM, self.__LOGGER)
+        self.statistics = statistics(
+            self.__CURRENT_URL, self.__API_VERSION_NUM, self.__LOGGER
+        )
 
     def __del__(self):
         self.__save_ip_addresses()
@@ -115,7 +120,9 @@ class robotComms:
         )
 
         if self.__VALID_CONNECTION:
-            self.__LOGGER.INFO(f"Communication Initiated in Local Network at: {self.__LOCAL_URL}")
+            self.__LOGGER.INFO(
+                f"Communication Initiated in Local Network at: {self.__LOCAL_URL}"
+            )
         else:
             self.set_local_url()
 
@@ -130,7 +137,9 @@ class robotComms:
         )
 
         if self.__VALID_CONNECTION:
-            self.__LOGGER.INFO(f"Communication Initiated in Remote Network at: {self.__REMOTE_URL}")
+            self.__LOGGER.INFO(
+                f"Communication Initiated in Remote Network at: {self.__REMOTE_URL}"
+            )
         else:
             self.set_remote_url()
 
