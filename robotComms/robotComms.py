@@ -19,6 +19,28 @@ import typing
 
 
 class robotComms:
+    """Base Class to Communicate with Robot over RESTful API.
+
+    Features:
+        - Communication over RESTful API With Athena 2.0
+        - REST API Error Handling
+        - Communication Logging
+        - Setting Up Local Connection or Remote Connection via Docker to Robot
+
+    Attributes:
+        __VALID_CONNECTION:
+        __LOCAL_URL: Local Connection URL
+        __REMOTE_URL: Remote Connection URL
+        __API_VERSION_NUM: API Version
+        __CURRENT_URL: Current URL over which communication is initiated
+        system: System API for Robot
+        artifact: Artifact API For Robot
+        slam: SLAM API for ROBOT
+        motion: Motion Control API for Robot
+        statistics: Robot Statistics
+        platform: Base API for Robot
+    """
+
     # Constructors
     def __init__(
         self,

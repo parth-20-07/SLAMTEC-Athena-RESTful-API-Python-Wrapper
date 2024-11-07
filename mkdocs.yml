@@ -1,0 +1,32 @@
+site_name: SLAMTEC Athena 2.0 RESTful Python Wrapper
+theme:
+    name: 'material'
+    font: 
+      text: JetBrains Mono
+      code:
+    palette:
+
+    # Light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      accent: red
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+
+    # Dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      accent: red
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+
+# Extensions
+plugins:
+  - mkdocstrings
+
+nav:
+  - Overview: README.md
+  - How-To Guides: VPN Setup Docker Guide.md
+  - API Docs: API Docs.md
