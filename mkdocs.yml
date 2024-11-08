@@ -24,9 +24,27 @@ theme:
 
 # Extensions
 plugins:
-  - mkdocstrings
-
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [robotComms]
+          options:
+            filters:
+              - "!^_" # Hide all the private members of class
+            find_stubs_package: True
+            allow_inspection: True
+            show_bases: True
+            show_inheritance_diagram: True
+            show_source: True
+            parameter_headings: False
+            inherited_members: True
+            merge_init_into_class: True
+            show_if_no_docstring: True
 nav:
   - Overview: README.md
-  - How-To Guides: VPN Setup Docker Guide.md
-  - API Docs: API Docs.md
+  - Setup Guides:
+    - VPN Setup Guide: VPN Setup Docker Guide.md
+  - API Docs:
+    - Robot Communication API: RoboComms_Docs.md
+    - Robot API: API_Docs.md
+    - Utils API: Utils_Docs.md
