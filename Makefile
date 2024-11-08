@@ -10,19 +10,25 @@ MODULE:=robotComms
 
 all: venv
 
+init: 
+	poetry shell
+
 setup: pyproject.toml $(VENV)
 	poetry install
 
 run: $(VENV)
 	./$(VENV)/bin/python3 $(ENTRY)
+
 format:
 	black $(MODULE)
 	ruff check $(MODULE)
+
 fix:
 	ruff check $(MODULE) --unsafe-fixes --fix
 
 clean:
 	rm -rf $(VENV)
+	rm -rf site
 	find . -type f -name '*.pyc' -delete
 	find . -name '__pycache__' -ls -exec rm -rv {} +
 	find . -name '.ruff_cache' -ls -exec rm -rv {} +
@@ -45,4 +51,4 @@ docker_clean:
 	docker rm $(VPN_CONTAINER)
 	docker rmi $(VPN_IMAGE)
 
-.PHONY: all setup run format fix clean docker_run docker_clean 
+.PHONY: all init setup run format fix clean docker_run docker_clean 

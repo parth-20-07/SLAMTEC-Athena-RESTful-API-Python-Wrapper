@@ -42,18 +42,17 @@ class statistics:
         result: CombinedType = response.data
         return result
 
+    def get_runtime(
+        self,
+    ) -> DictType:
+        """The total running time of the robot, in seconds
 
-def get_runtime(
-    self,
-) -> DictType:
-    """The total running time of the robot, in seconds
-
-    Returns:
-        0
-    """
-    response: combined_Result = self.__REST_ADAPTER.get(
-        full_endpoint=f"{self.__IP_ADDR}/{self.__API_TAG}/{self.__API_VERSION}/runtime",
-        response_type=Response_Type.JSON,
-    )
-    result: CombinedType = response.data
-    return result
+        Returns:
+            0
+        """
+        response: combined_Result = self.__REST_ADAPTER.get(
+            full_endpoint=f"{self.__IP_ADDR}/{self.__API_TAG}/{self.__API_VERSION}/runtime",
+            response_type=Response_Type.JSON,
+        )
+        result: CombinedType = response.data
+        return result

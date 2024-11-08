@@ -1,0 +1,50 @@
+site_name: SLAMTEC Athena 2.0 RESTful Python Wrapper
+theme:
+    name: 'material'
+    font: 
+      text: JetBrains Mono
+      code:
+    palette:
+
+    # Light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      accent: red
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+
+    # Dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      accent: red
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+
+# Extensions
+plugins:
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [robotComms]
+          options:
+            filters:
+              - "!^_" # Hide all the private members of class
+            find_stubs_package: True
+            allow_inspection: True
+            show_bases: True
+            show_inheritance_diagram: True
+            show_source: True
+            parameter_headings: False
+            inherited_members: True
+            merge_init_into_class: True
+            show_if_no_docstring: True
+nav:
+  - Overview: README.md
+  - Setup Guides:
+    - VPN Setup Guide: VPN Setup Docker Guide.md
+  - API Docs:
+    - Robot Communication API: RoboComms_Docs.md
+    - Robot API: API_Docs.md
+    - Utils API: Utils_Docs.md
