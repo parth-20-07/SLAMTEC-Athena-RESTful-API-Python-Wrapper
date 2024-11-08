@@ -23,6 +23,7 @@ fix:
 
 clean:
 	rm -rf $(VENV)
+	rm -rf site
 	find . -type f -name '*.pyc' -delete
 	find . -name '__pycache__' -ls -exec rm -rv {} +
 	find . -name '.ruff_cache' -ls -exec rm -rv {} +
